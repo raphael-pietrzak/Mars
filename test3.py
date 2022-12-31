@@ -30,16 +30,16 @@ quit_image = pygame.transform.smoothscale(quit_image, (size, size))
 
 
 # Création du menu
-menu_items = [factory, quit_image]
+menu_items = [factory, quit_image,factory, quit_image,factory, quit_image,factory, quit_image]
 current_item = 0
 
 # Création des rectangles de sélection pour chaque élément du menu
 menu_rects = []
-x = 0  # Coordonnée x du premier élément du menu
+x = screen.get_width()//2 - (size +10) * len(menu_items)//2 # Coordonnée x du premier élément du menu
 for index, item in enumerate(menu_items):
     rect = item.get_rect()
     rect.left = x
-    rect.top = 0
+    rect.top = screen.get_height() - 100
     menu_rects.append(rect)
     x = rect.right + 10  # Mise à jour de la coordonnée x pour l'élément suivant
 
