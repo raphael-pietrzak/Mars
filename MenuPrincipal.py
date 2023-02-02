@@ -17,7 +17,7 @@ pygame.display.set_caption('Mon menu')
 font = pygame.font.Font(None, 32)
 
 # Création du menu
-menu_items = ['Ajouter une image', 'Quitter']
+menu_items = ['Jouer', 'Quitter']
 current_item = 0
 
 # Création des rectangles de sélection pour chaque élément du menu

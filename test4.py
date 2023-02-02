@@ -16,8 +16,8 @@ pygame.display.set_caption('Mon menu')
 
 # Chargement des images du menu
 images = []
-for i in range(1, 6):
-    image = pygame.image.load(f'pictures/image_{i}.jpeg')
+for i in range(1, 5):
+    image = pygame.image.load(f'pictures/image{i}.jpeg')
     images.append(image)
 
 # Redimensionnement des images LD

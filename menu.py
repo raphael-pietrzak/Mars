@@ -1,56 +1,74 @@
+# Zoom Menu Pictures
 
 import pygame
-# from main import sprites
 
-
-# Initialisation de pygame
+# Initialisation de Pygame
 pygame.init()
 
-# Définition de la fenêtre de jeu
+# Définition des couleurs
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
+# Création de la fenêtre en mode plein écran
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-screen_width, screen_height = screen.get_size()
+pygame.display.set_caption("Mon menu")
 
-# Police de caractères pour afficher le texte à l'écran
-font = pygame.font.Font(None, 36)
+# Chargement des images du menu
+factory = pygame.image.load("pictures/factory.jpeg")
+quit_image = pygame.image.load("pictures/house.jpeg")
 
-# Liste des bâtiments disponibles dans le jeu
-buildings = [
-    {"name": "Maison", "image": pygame.image.load("pictures/house.jpeg"), "x": 10, "y": 10},
-    {"name": "Tour", "image": pygame.image.load("pictures/tower.jpeg"), "x": 50, "y": 50},
-    {"name": "Usine", "image": pygame.image.load("pictures/factory.jpeg"), "x": 100, "y": 100},
+# # Redimensionnement des images LD
+# size = max(factory.get_size())
+# factory = pygame.transform.scale(factory, (size, size))
+# quit_image = pygame.transform.scale(quit_image, (size, size))
+
+# Redimensionnement des images HD
+size = max(factory.get_size())
+size = 75
+factory = pygame.transform.smoothscale(factory, (size, size))
+quit_image = pygame.transform.smoothscale(quit_image, (size, size))
+
+
+# Création du menu
+menu_items = [
+    factory,
+    quit_image,
+    factory,
+    quit_image,
+    factory,
+    quit_image,
+    factory,
+    quit_image,
 ]
 
-# Taille des boutons du menu
-button_width, button_height = 100, 50
+# Item du menu
+current_item = -1
 
-# Marges entre les boutons du menu
-button_margin_x, button_margin_y = 10, 10
 
-# Offset du menu par rapport à l'écran
-menu_offset_x, menu_offset_y = 10, 10
+# Création des rectangles de sélection pour chaque élément du menu
+menu_rects = []
+x = (
+    screen.get_width() // 2 - (size + 10) * len(menu_items) // 2
+)  # Coordonnée x du premier élément du menu
+for index, item in enumerate(menu_items):
+    rect = item.get_rect()
+    rect.left = x
+    rect.top = screen.get_height() - 100
+    menu_rects.append(rect)
+    x = rect.right + 10  # Mise à jour de la coordonnée x pour l'élément suivant
 
-# Fonction de dessin du menu
-def draw_menu():
-    # Initialisation des coordonnées de placement du premier bouton du menu
-    x, y = menu_offset_x, menu_offset_y
 
-    # Pour chaque bâtiment de la liste, affichage de l'image en tant que bouton cliquable
-    for building in buildings:
-        # Création du rect du bouton
-        rect = pygame.Rect(x, y, button_width, button_height)
+def draw_menu(current_item):
+    for index, item in enumerate(menu_items):
+        if index == current_item:
+            # Dessin d'un contour autour de l'image et agrandissement léger de l'image
+            rect = menu_rects[index]
+            pygame.draw.rect(screen, WHITE, rect, 2)
+            item = pygame.transform.scale(
+                item, (int(rect.width * 1.1), int(rect.height * 1.1))
+            )
+        screen.blit(item, menu_rects[index])
 
-        # Dessin du rect du bouton à l'écran
-        pygame.draw.rect(screen, (255,0,0), rect, 1)
+    return current_item
 
-        # Affichage de l'image du bâtiment à l'intérieur du rect du bouton
-        screen.blit(building["image"], rect)
 
-        # Affichage du nom du bâtiment sous l'image
-        text = font.render(building["name"], True, (255,0,0))
-        text_rect = text.get_rect()
-        text_rect.center = (x + button_width // 2, y + button_height + button_margin_y)
-        screen.blit(text, text_rect)
-
-        # Mise à jour des coordonnées de placement
-        x += button_width + button_margin_x
-        y += button_height + button_margin_y
