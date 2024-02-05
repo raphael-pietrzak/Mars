@@ -1,5 +1,3 @@
-# Zoom Menu Pictures
-
 import pygame
 
 # Initialisation de Pygame
@@ -11,16 +9,10 @@ WHITE = (255, 255, 255)
 
 # Création de la fenêtre en mode plein écran
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-pygame.display.set_caption("Mon menu")
 
 # Chargement des images du menu
 factory = pygame.image.load("pictures/factory.jpeg")
 quit_image = pygame.image.load("pictures/house.jpeg")
-
-# # Redimensionnement des images LD
-# size = max(factory.get_size())
-# factory = pygame.transform.scale(factory, (size, size))
-# quit_image = pygame.transform.scale(quit_image, (size, size))
 
 # Redimensionnement des images HD
 size = max(factory.get_size())
