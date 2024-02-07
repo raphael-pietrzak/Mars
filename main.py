@@ -12,7 +12,6 @@ class Main:
 
         self.editor = Editor()
         self.clock = pygame.time.Clock()
-        self.clock = pygame.time.Clock()
         
 
     def run(self):
