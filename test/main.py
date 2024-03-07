@@ -1,7 +1,6 @@
-import sys
-from editor import Editor
+from blob import Editor
 from settings import *
-from menu import Menu
+
 import pygame
 
 class Main:
@@ -9,7 +8,7 @@ class Main:
         pygame.init()
 
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.RESIZABLE)
-        pygame.display.set_caption("MARS ISOMETRIC GAME")
+        pygame.display.set_caption("BLOB TEST")
 
         self.editor = Editor()
         self.clock = pygame.time.Clock()
@@ -20,9 +19,6 @@ class Main:
             dt = self.clock.tick() / 1000
             self.editor.update(dt)
             pygame.display.update()
-
-                
-
 
 
 
