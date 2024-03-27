@@ -103,6 +103,35 @@ MENU = {
 
 
 
+sprites_tiles = {
+    1 : { 'name' : 'axe', 'path' : 'assets/tile1.png', 'type' : 'tool' },
+    2 : { 'name' : 'wood blocks', 'path' : 'assets/tile2.png', 'type' : 'resource' }, 
+    3 : { 'name' : 'pickaxe', 'path' : 'assets/tile3.png', 'type' : 'tool' },
+    4 : { 'name' : 'decorated pickaxe', 'path' : 'assets/tile4.png', 'type' : 'tool' },
+    5 : { 'name' : 'planks', 'path' : 'assets/tile5.png', 'type' : 'resource' },
+    6 : { 'name' : 'fork', 'path' : 'assets/tile6.png', 'type' : 'tool' },
+    7 : { 'name' : 'rock', 'path' : 'assets/tile7.png', 'type' : 'resource' },
+    8 : { 'name' : 'hoe', 'path' : 'assets/tile8.png', 'type' : 'tool' },
+    9 : { 'name' : 'stone', 'path' : 'assets/tile9.png', 'type' : 'resource' },
+    10 : { 'name' : 'stones', 'path' : 'assets/tile10.png', 'type' : 'resource' },
+    11 : { 'name' : 'shovel', 'path' : 'assets/tile11.png', 'type' : 'tool' },
+    12 : { 'name' : 'straw', 'path' : 'assets/tile12.png', 'type' : 'resource' },
+    13 : { 'name' : 'ciseled stone', 'path' : 'assets/tile13.png', 'type' : 'resource' },
+    14 : { 'name' : 'lapiz', 'path' : 'assets/tile14.png', 'type' : 'resource' },
+    15 : { 'name' : 'gold nugget', 'path' : 'assets/tile15.png', 'type' : 'resource' },
+    16 : { 'name' : 'iron nugget', 'path' : 'assets/tile16.png', 'type' : 'resource' },
+    17 : { 'name' : 'dirt', 'path' : 'assets/tile17.png', 'type' : 'resource' },
+    18 : { 'name' : 'caillou', 'path' : 'assets/tile18.png', 'type' : 'resource' },
+    19 : { 'name' : 'purple gem', 'path' : 'assets/tile19.png', 'type' : 'resource' },
+    20 : { 'name' : 'orange gem', 'path' : 'assets/tile20.png', 'type' : 'resource' },
+    21 : { 'name' : 'sulfur', 'path' : 'assets/tile21.png', 'type' : 'resource' },
+    22 : { 'name' : 'iron', 'path' : 'assets/tile22.png', 'type' : 'resource' },
+    23 : { 'name' : 'gold', 'path' : 'assets/tile23.png', 'type' : 'resource' },
+    24 : { 'name' : 'coal', 'path' : 'assets/tile24.png', 'type' : 'resource' },
+    25 : { 'name' : 'stick', 'path' : 'assets/tile25.png', 'type' : 'resource' },
+}
+
+
 
 
 

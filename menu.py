@@ -34,13 +34,12 @@ class Menu:
 
     
     def event_loop(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and mouse_buttons()[0] and not self.layer1.rect.collidepoint(mouse_pos()):
+            self.layer1.button_selected = None
 
         if self.layer1.rect.collidepoint(mouse_pos()):
             self.layer1.event_loop(event)
-            # # if self.buttons_container_rect.top + event.y * 10 <= 0 and self.buttons_container_rect.bottom + event.y * 10 >= self.size[1]:
-            # self.buttons_container_rect.y += event.y * 10 
-            # self.buttons_container_rect.bottom = max(self.size[1], self.buttons_container_rect.bottom)  
-            # self.buttons_container_rect.top = min(0, self.buttons_container_rect.top)
+
 
 
                 
@@ -57,7 +56,7 @@ class Menu:
     def draw_preview(self):
         if self.is_dragging:
             preview_surface = pygame.Surface((TILE_SIZE, TILE_SIZE))
-            preview_surface.fill('red')
+            preview_surface.fill('green')
             preview_rect = preview_surface.get_rect(center=mouse_pos())
             self.display_surface.blit(preview_surface, preview_rect)  
         
@@ -95,13 +94,17 @@ class Layer1(MenuLayer):
 
         self.create_buttons()
         self.create_layers()
-        self.button_selected = 0
+        self.button_selected = None
 
 
     def event_loop(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and mouse_buttons()[0]:
             self.click()
-            
+
+        if event.type == pygame.MOUSEWHEEL:
+            self.buttons_container_rect.y += event.y * 10
+            self.buttons_container_rect.bottom = max(self.rect.height, self.buttons_container_rect.bottom)
+            self.buttons_container_rect.top = min(0, self.buttons_container_rect.top)
         
 
     def click(self):
@@ -114,7 +117,7 @@ class Layer1(MenuLayer):
         return None
     
     def create_buttons(self):
-        button_size = vector(50, 50)
+        button_size = vector(self.rect.width - 20, 50)
         padding = vector(0, 5)
         margin = vector(10, 10)
         for i in range(len(self.titles)):
@@ -129,13 +132,12 @@ class Layer1(MenuLayer):
     def create_layers(self):
         self.layers = []
 
-        print(self.items_dict[0]['items'])
         for i in range(len(self.titles)):
             layer = Layer2(self.rect.topright + vector(20, 0), (200, 600), self.items_dict[i]['items'])
             self.layers.append(layer)                       
 
     def display_buttons(self, dt):
-        self.buttons_container.fill('red')
+        self.buttons_container.fill('green')
         for button in self.buttons:
             button.update(dt, self.buttons_container)
 
@@ -145,7 +147,8 @@ class Layer1(MenuLayer):
         self.display_buttons(dt)
         self.surface.blit(self.buttons_container, self.buttons_container_rect)
 
-        self.layers[self.button_selected].display(dt)
+        if self.button_selected is not None:
+            self.layers[self.button_selected].display(dt)
 
         super().display()
 
@@ -158,10 +161,10 @@ class Layer2(MenuLayer):
         self.items = [value['name'] for value in self.items_dict.values()]
         self.create_buttons()
         self.create_layers()
-        self.button_selected = 0
+        self.button_selected_index = None
     
     def create_buttons(self):
-        button_size = vector(50, 50)
+        button_size = vector(self.rect.width - 20, 50)
         padding = vector(0, 5)
         margin = vector(10, 10)
         for i in range(len(self.items)):
@@ -169,6 +172,7 @@ class Layer2(MenuLayer):
             center = (topleft[0] + button_size.x//2, topleft[1] + button_size.y//2)
             button = Button(center, button_size, self.items[i], i)
             self.buttons.append(button)
+
 
         self.buttons_container = pygame.Surface((self.rect.width, len(self.buttons) * (button_size.y + padding.y) + margin.y * 2))
         self.buttons_container_rect = self.buttons_container.get_rect(topleft=(0, 0))
@@ -182,28 +186,33 @@ class Layer2(MenuLayer):
         
     def buttons_hover(self):
         for button in self.buttons:
+            button.hover_active = False
+
+        for button in self.buttons:
             offset = vector(self.rect.topleft) + vector(self.buttons_container_rect.topleft)
             if button.rect.collidepoint(mouse_pos() - offset):
-                self.button_selected = button.index
-                button.animation_active = True
-                break
+                self.button_selected_index = button.index
+                button.hover_active = True
+                return
+        
+        self.button_selected_index = None
 
 
     def display_buttons(self, dt):
-        self.buttons_container.fill('red')
+        self.buttons_container.fill('green')
         for button in self.buttons:
             button.update(dt, self.buttons_container)
 
 
     def display(self, dt):
-
         self.buttons_hover()
 
         self.surface.fill('green')
         self.display_buttons(dt)
         self.surface.blit(self.buttons_container, self.buttons_container_rect)
 
-        self.layers[self.button_selected].display()
+        if self.button_selected_index is not None:
+            self.layers[self.button_selected_index].display()
 
         super().display()
 
@@ -214,7 +223,6 @@ class Layer3(MenuLayer):
         self.title = 'Description'
         self.cost = items_dict['cost']
         self.items_dict = items_dict
-        self.visible = False
 
     def display(self):
         self.surface.fill('green')
@@ -229,10 +237,11 @@ class Layer3(MenuLayer):
     
 class Button:
     def __init__(self, center, size, text, index):
+        self.original_size = size.copy()
         self.index = index
         self.size = vector(size)
         self.center = center
-        self.rect = pygame.Rect((0, 0), size)
+        self.rect = pygame.Rect((0, 0), self.original_size)
         self.rect.center = center
         self.text = text
         self.display_surface = pygame.display.get_surface()
@@ -241,10 +250,11 @@ class Button:
         # Animation
         self.animation_speed = 200
         self.animation_active = False
-        self.down_animation = [40]
-        self.up_animation = [55, 50]
-        self.animation = [40, 55, 50]
+        self.animation = [-10, 5, 0]
         self.animation_index = 0
+
+        # Hover
+        self.hover_active = False
 
     def display(self, surface):
         pygame.draw.rect(surface, 'burlywood1', self.rect, border_radius=10)
@@ -256,24 +266,36 @@ class Button:
         if self.animation_index >= len(self.animation):
             self.animation_index = 0
             self.animation_active = False
+            print('Animation done', self.original_size)
 
 
         if self.animation_active:
-            size_goal = self.animation[self.animation_index]
-            direction = 1 if self.size.x - size_goal < 0 else -1
+            size_goal = vector(self.animation[self.animation_index] + self.original_size.x, self.animation[self.animation_index] + self.original_size.y)
+            direction = 1 if self.animation[self.animation_index] > 0 else -1
             self.size += vector(1, 1) * dt * self.animation_speed * direction
             self.rect.size = self.size
             self.rect.center = self.center
             
-            if (direction == 1 and self.size.x > size_goal) or (direction == -1 and self.size.x < size_goal):
-                self.size = vector(size_goal, size_goal)
+            if (direction == 1 and self.size.x > size_goal.x) or (direction == -1 and self.size.x < size_goal.x):
+                self.size = size_goal
                 self.rect.size = self.size
                 self.animation_index += 1
+
+    
             
-                
+    def hover(self):
+        if self.hover_active:
+            self.size = self.original_size + vector(5, 5)
+            self.rect.size = self.size
+            self.rect.center = self.center
+        if not self.hover_active and not self.animation_active:
+            self.size = self.original_size.copy()
+            self.rect.size = self.size
+            self.rect.center = self.center
     
     def update(self, dt, surface):
         self.animate(dt)
+        self.hover()
         self.display(surface)
 
 

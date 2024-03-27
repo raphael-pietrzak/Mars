@@ -83,7 +83,7 @@ class Editor:
             self.pan_active = False
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
         
-        if event.type == pygame.MOUSEWHEEL:
+        if event.type == pygame.MOUSEWHEEL and not self.menu.rect.collidepoint(mouse_pos()):
             self.origin += vector(- event.x * 10, event.y * 10)
 
         if self.pan_active:
