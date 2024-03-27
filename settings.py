@@ -30,6 +30,60 @@ MENU_BUILDINGS = {
     }
 }
 
+MENU_UNITS = {
+    0 : {
+        'name' : 'Worker',
+        'cost' : 100,
+        'income' : 10,
+        'size' : (1, 1)
+    },
+    1 : {
+        'name' : 'Soldier',
+        'cost' : 200,
+        'income' : 20,
+        'size' : (1, 1)
+    },
+    2 : {
+        'name' : 'Tank',
+        'cost' : 300,
+        'income' : 30,
+        'size' : (2, 2)
+    },
+    3 : {
+        'name' : 'Plane',
+        'cost' : 400,
+        'income' : 40,
+        'size' : (2, 3)
+    }
+}
+
+MENU_RESOURCES = {
+    0 : {
+        'name' : 'Wood',
+        'cost' : 100,
+        'income' : 10,
+        'size' : (1, 1)
+    },
+    1 : {
+        'name' : 'Stone',
+        'cost' : 200,
+        'income' : 20,
+        'size' : (1, 1)
+    },
+    2 : {
+        'name' : 'Iron',
+        'cost' : 300,
+        'income' : 30,
+        'size' : (1, 1)
+    },
+    3 : {
+        'name' : 'Gold',
+        'cost' : 400,
+        'income' : 40,
+        'size' : (1, 1)
+    }
+}
+
 MENU = {
     0 : {
         'name' : 'Buildings',
@@ -37,11 +91,11 @@ MENU = {
     },
     1 : {
         'name' : 'Units',
-        'items' : {}
+        'items' : MENU_UNITS
     },
     2 : {
         'name' : 'Resources',
-        'items' : {}
+        'items' : MENU_RESOURCES
     }
 }
 
