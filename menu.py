@@ -2,7 +2,7 @@ import pygame
 from settings import *
 from pygame import Vector2 as vector
 from pygame.mouse import get_pos as mouse_pos
-from pygame.mouse import get_pressed as mouse_pressed
+from pygame.mouse import get_pressed as mouse_buttons
 
 
 class Menu:
@@ -27,63 +27,22 @@ class Menu:
 
 
 
-    def create_menu(self, cols=1, rows=10):
-
-        first_layer_rect = pygame.Rect((0, 0), (50, 500))
-        first_layer_rect.center = (50, WINDOW_HEIGHT//2)
-
-        second_layer_rect = pygame.Rect((0, 0), (300, 500))
-        second_layer_rect.topleft = (first_layer_rect.right + 20, first_layer_rect.top)
-
-        third_layer_rect = pygame.Rect((0, 0), (200, 200))
-        third_layer_rect.topleft = (second_layer_rect.right + 20, first_layer_rect.top)
-
-        self.menu_layers = []
-
-        layer1_items = [value['name'] for key, value in self.menu_items.items()]
-        self.layer1 = MenuLayer('Catégories', first_layer_rect, layer1_items)
-
-        layer2_items = [value['name'] for key, value in self.menu_items[0]['items'].items()]
-        self.layer2 = MenuLayer('Bâtiments', second_layer_rect, layer2_items)
-
-        layer3_items = [f"{value['name']} : {value['cost']}, {value['income']}, {value['size']}" for key, value in self.menu_items[0]['items'].items()]
-        self.layer3 = MenuLayer('Description', third_layer_rect, layer3_items)
-
-
-
-
-
-
-        # button_size = vector(50, 50)
-        # padding = vector(0, 5)
-        # margin = vector(10, 10)
-        # self.size = (button_size.x + margin.x * 2, button_size.y * rows + padding.y * (rows - 1) + margin.y * 2)
-        # self.rect = pygame.Rect((0,0), self.size)
-        # self.rect.center = (50, WINDOW_HEIGHT//2)
-        # self.surface = pygame.Surface(self.size)
-        # self.surface.set_colorkey('green')
-
-        # self.buttons = []
-        # titles = ['4', '6', '9', '12']
-        # for i in range(len(titles)):
-        #     topleft = (margin.x, margin.y + (button_size.y + padding.y) * i)
-        #     center = (topleft[0] + button_size.x//2, topleft[1] + button_size.y//2)
-        #     button = Button(center, button_size, titles[i], i)
-        #     self.buttons.append(button)
-
-        # self.buttons_container = pygame.Surface((self.size[0], len(self.buttons) * (button_size.y + padding.y) + margin.y * 2))
-        # self.buttons_container_rect = self.buttons_container.get_rect(topleft=(0, 0))
-        # self.buttons_container.set_colorkey('red')
+    def create_menu(self):
+        self.layer1 = Layer1((50, 50), (200, 600), MENU)
 
 
 
     
     def event_loop(self, event):
-        if event.type == pygame.MOUSEWHEEL:
-            # if self.buttons_container_rect.top + event.y * 10 <= 0 and self.buttons_container_rect.bottom + event.y * 10 >= self.size[1]:
-            self.buttons_container_rect.y += event.y * 10 
-            self.buttons_container_rect.bottom = max(self.size[1], self.buttons_container_rect.bottom)  
-            self.buttons_container_rect.top = min(0, self.buttons_container_rect.top)
+
+        if self.layer1.rect.collidepoint(mouse_pos()):
+            self.layer1.event_loop(event)
+            # # if self.buttons_container_rect.top + event.y * 10 <= 0 and self.buttons_container_rect.bottom + event.y * 10 >= self.size[1]:
+            # self.buttons_container_rect.y += event.y * 10 
+            # self.buttons_container_rect.bottom = max(self.size[1], self.buttons_container_rect.bottom)  
+            # self.buttons_container_rect.top = min(0, self.buttons_container_rect.top)
+
+
                 
     def click(self):
         for button in self.buttons: 
@@ -107,70 +66,164 @@ class Menu:
     def update(self, dt):
         self.draw_preview()
 
-        self.layer1.display()
-        self.layer2.display()
-        self.layer3.display()
+        self.layer1.display(dt)
 
-        # pygame.draw.rect(self.display_surface, 'gray', self.rect, border_radius=10)
-        # self.buttons_container.fill('red')
-        # for button in self.buttons:
-        #     button.update(dt, self.buttons_container)
-
-        # self.surface.fill('green')
-        # self.surface.blit(self.buttons_container, self.buttons_container_rect)
-        # self.display_surface.blit(self.surface, self.rect)
-
-        self.ressource.draw()
+        # self.ressource.draw()
 
 
 class MenuLayer:
-    def __init__(self, title, rect, items):
-        self.title = title
-        self.rect = rect
-        self.items = items
+    def __init__(self, pos, size):
         self.display_surface = pygame.display.get_surface()
-        self.surface = pygame.Surface(self.rect.size)
-        self.create_buttons()
-        self.font = pygame.font.Font(None, 26)
-        self.surface.set_colorkey('red')
-    
-    def create_buttons(self):
-        self.buttons = []
-        for i in range(len(self.items)):
-            button = Button((self.rect.centerx, self.rect.y + 50 * i), (200, 50), self.items[i], i)
-            self.buttons.append(button)
-    
-    def display_buttons(self):
-        self.surface.fill('red')    
-        for button in self.buttons:
-            button.display(self.surface)
 
-    
+        # layer
+        self.rect = pygame.Rect(pos, size)
+        self.surface = pygame.Surface(self.rect.size)
+        self.surface.set_colorkey('green')
+
+
     def display(self):
-        pygame.draw.rect(self.display_surface, 'blue', self.rect, border_radius=10)
-        text = self.font.render(self.title, True, 'white')
-        text_rect = text.get_rect(center=self.rect.center)
-        self.display_surface.blit(text, text_rect)
-        self.display_buttons()
+        pygame.draw.rect(self.display_surface, 'aquamarine3', self.rect, border_radius=10)
         self.display_surface.blit(self.surface, self.rect)
 
 
-class Description:
-    def __init__(self, title, cost, income, size):
-        self.title = title
-        self.cost = cost
-        self.income = income
-        self.size = size
-        self.display_surface = pygame.display.get_surface()
-        self.font = pygame.font.Font(None, 26)
-        self.rect = pygame.Rect((0, 0), (200, 200))
-        self.rect.topleft = (WINDOW_WIDTH - 200, 0)
+class Layer1(MenuLayer):
+    def __init__(self, pos, size, items_dict):
+        super().__init__(pos, size)
+        self.buttons = []
+        self.items_dict = items_dict
+        self.titles = [value['name'] for value in self.items_dict.values()]
+
+        self.create_buttons()
+        self.create_layers()
+        self.button_selected = 0
+
+
+    def event_loop(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and mouse_buttons()[0]:
+            self.click()
+            
+        
+
+    def click(self):
+        for button in self.buttons:
+            offset = vector(self.rect.topleft) + vector(self.buttons_container_rect.topleft)
+            if button.rect.collidepoint(mouse_pos() - offset):
+                button.animation_active = True
+                self.button_selected = button.index
+                return button.index
+        return None
     
+    def create_buttons(self):
+        button_size = vector(50, 50)
+        padding = vector(0, 5)
+        margin = vector(10, 10)
+        for i in range(len(self.titles)):
+            topleft = (margin.x, margin.y + (button_size.y + padding.y) * i)
+            center = (topleft[0] + button_size.x//2, topleft[1] + button_size.y//2)
+            button = Button(center, button_size, self.titles[i], i)
+            self.buttons.append(button)
+
+        self.buttons_container = pygame.Surface((self.rect.width, len(self.buttons) * (button_size.y + padding.y) + margin.y * 2))
+        self.buttons_container_rect = self.buttons_container.get_rect(topleft=(0, 0))
+
+    def create_layers(self):
+        self.layers = []
+
+        print(self.items_dict[0]['items'])
+        for i in range(len(self.titles)):
+            layer = Layer2(self.rect.topright + vector(20, 0), (200, 600), self.items_dict[i]['items'])
+            self.layers.append(layer)                       
+
+    def display_buttons(self, dt):
+        self.buttons_container.fill('red')
+        for button in self.buttons:
+            button.update(dt, self.buttons_container)
+
+
+    def display(self, dt):
+        self.surface.fill('green')
+        self.display_buttons(dt)
+        self.surface.blit(self.buttons_container, self.buttons_container_rect)
+
+        self.layers[self.button_selected].display(dt)
+
+        super().display()
+
+
+class Layer2(MenuLayer):
+    def __init__(self, pos, size, items_dict):
+        super().__init__(pos, size)
+        self.buttons = []
+        self.items_dict = items_dict
+        self.items = [value['name'] for value in self.items_dict.values()]
+        self.create_buttons()
+        self.create_layers()
+        self.button_selected = 0
+    
+    def create_buttons(self):
+        button_size = vector(50, 50)
+        padding = vector(0, 5)
+        margin = vector(10, 10)
+        for i in range(len(self.items)):
+            topleft = (margin.x, margin.y + (button_size.y + padding.y) * i)
+            center = (topleft[0] + button_size.x//2, topleft[1] + button_size.y//2)
+            button = Button(center, button_size, self.items[i], i)
+            self.buttons.append(button)
+
+        self.buttons_container = pygame.Surface((self.rect.width, len(self.buttons) * (button_size.y + padding.y) + margin.y * 2))
+        self.buttons_container_rect = self.buttons_container.get_rect(topleft=(0, 0))
+
+    def create_layers(self):
+        self.layers = []
+        for i in range(len(self.items)):
+            layer = Layer3(self.rect.topright + vector(20, 0), (200, 200), self.items_dict[i])
+            self.layers.append(layer)
+
+        
+    def buttons_hover(self):
+        for button in self.buttons:
+            offset = vector(self.rect.topleft) + vector(self.buttons_container_rect.topleft)
+            if button.rect.collidepoint(mouse_pos() - offset):
+                self.button_selected = button.index
+                button.animation_active = True
+                break
+
+
+    def display_buttons(self, dt):
+        self.buttons_container.fill('red')
+        for button in self.buttons:
+            button.update(dt, self.buttons_container)
+
+
+    def display(self, dt):
+
+        self.buttons_hover()
+
+        self.surface.fill('green')
+        self.display_buttons(dt)
+        self.surface.blit(self.buttons_container, self.buttons_container_rect)
+
+        self.layers[self.button_selected].display()
+
+        super().display()
+
+
+class Layer3(MenuLayer):
+    def __init__(self, pos, size, items_dict):
+        super().__init__(pos, size)
+        self.title = 'Description'
+        self.cost = items_dict['cost']
+        self.items_dict = items_dict
+        self.visible = False
+
     def display(self):
-        pygame.draw.rect(self.display_surface, 'blue', self.rect, border_radius=10)
-        text = self.font.render(f'{self.title}', True, 'white')
-        text_rect = text.get_rect(center=self.rect.center)
-        self.display_surface.blit(text, text_rect)
+        self.surface.fill('green')
+        text = pygame.font.Font(None, 26).render(str(self.cost), True, 'white')
+        text_rect = text.get_rect(center=vector(self.rect.width//2, self.rect.height//2))
+        self.surface.blit(text, text_rect)
+        super().display()
+
+
 
 
     
@@ -194,7 +247,7 @@ class Button:
         self.animation_index = 0
 
     def display(self, surface):
-        pygame.draw.rect(surface, 'green', self.rect, border_radius=10)
+        pygame.draw.rect(surface, 'burlywood1', self.rect, border_radius=10)
         text = self.font.render(self.text, True, 'white')
         text_rect = text.get_rect(center=self.rect.center)
         surface.blit(text, text_rect)
@@ -222,6 +275,12 @@ class Button:
     def update(self, dt, surface):
         self.animate(dt)
         self.display(surface)
+
+
+
+
+
+
 
 
 

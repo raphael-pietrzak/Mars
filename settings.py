@@ -49,12 +49,7 @@ MENU_UNITS = {
         'income' : 30,
         'size' : (2, 2)
     },
-    3 : {
-        'name' : 'Plane',
-        'cost' : 400,
-        'income' : 40,
-        'size' : (2, 3)
-    }
+
 }
 
 MENU_RESOURCES = {
@@ -80,6 +75,12 @@ MENU_RESOURCES = {
         'name' : 'Gold',
         'cost' : 400,
         'income' : 40,
+        'size' : (1, 1)
+    },
+    4 : {
+        'name' : 'Diamond',
+        'cost' : 500,
+        'income' : 50,
         'size' : (1, 1)
     }
 }
