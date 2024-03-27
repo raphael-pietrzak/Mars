@@ -29,3 +29,25 @@ MENU_BUILDINGS = {
         'size' : (3, 4)
     }
 }
+
+MENU = {
+    0 : {
+        'name' : 'Buildings',
+        'items' : MENU_BUILDINGS
+    },
+    1 : {
+        'name' : 'Units',
+        'items' : {}
+    },
+    2 : {
+        'name' : 'Resources',
+        'items' : {}
+    }
+}
+
+
+
+
+
+
+

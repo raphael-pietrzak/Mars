@@ -42,8 +42,6 @@ class Editor:
 
     def import_menu(self):
         self.buildings = MENU_BUILDINGS
-        # for key, value in MENU_BUILDINGS.items():
-            # self.menu.add_button(key, value)
             
 
     def event_loop(self):
@@ -62,16 +60,17 @@ class Editor:
 
 
     def border_pan(self):
-        speed = 5
-        delta = 20
-        if (mouse_pos()[0] < delta):
-            self.origin.x += speed
-        if (mouse_pos()[0] > WINDOW_WIDTH - delta):
-            self.origin.x -= speed
-        if (mouse_pos()[1] < 20):
-            self.origin.y += speed
-        if (mouse_pos()[1] > WINDOW_HEIGHT - delta):
-            self.origin.y -= speed
+        if self.preview_active:
+            speed = 5
+            delta = 10
+            if (mouse_pos()[0] < delta):
+                self.origin.x += speed
+            if (mouse_pos()[0] > WINDOW_WIDTH - delta):
+                self.origin.x -= speed
+            if (mouse_pos()[1] < 20):
+                self.origin.y += speed
+            if (mouse_pos()[1] > WINDOW_HEIGHT - delta):
+                self.origin.y -= speed
 
     
     def pan_input(self, event):
@@ -86,8 +85,6 @@ class Editor:
         
         if event.type == pygame.MOUSEWHEEL:
             self.origin += vector(- event.x * 10, event.y * 10)
-
-
 
         if self.pan_active:
             self.origin = vector(mouse_pos()) - self.pan_offset
@@ -122,7 +119,7 @@ class Editor:
 
     def zoom(self, event):
         pass
-    
+
     def resize_screen_event(self, event):
         if event.type == pygame.VIDEORESIZE:
             global WINDOW_WIDTH, WINDOW_HEIGHT
@@ -170,15 +167,19 @@ class Editor:
                 )
         
         if event.type == pygame.MOUSEBUTTONDOWN and self.preview_active and not self.menu.rect.collidepoint(mouse_pos()):
+            self.preview_cluster.animation_active = True
 
-            if self.is_cluster_valid(self.preview_cluster):
-                for tile in self.preview_cluster.tiles:
-                    canvas_pos = (tile.x + self.preview_cluster.tiles_origin.x, tile.y + self.preview_cluster.tiles_origin.y)
-                    self.canvas[canvas_pos] = CanvasTile(tile + self.preview_cluster.tiles_origin)
+            # if self.is_cluster_valid(self.preview_cluster):
+            #     for tile in self.preview_cluster.tiles:
+            #         canvas_pos = (tile.x + self.preview_cluster.tiles_origin.x, tile.y + self.preview_cluster.tiles_origin.y)
+            #         self.canvas[canvas_pos] = CanvasTile(tile + self.preview_cluster.tiles_origin)
 
 
             self.preview_active = False
-            self.preview_cluster = None
+
+
+        # if self.preview_cluster and self.preview_cluster.animation_active == False:
+            # self.preview_cluster = None
 
         
 
@@ -199,14 +200,25 @@ class Editor:
         for tile in self.canvas.values():
             tile.draw(self.origin)
     
-    def draw_menu_preview(self):
+    def draw_menu_preview(self, dt):
         if self.preview_active:
-            pos = self.get_tile_pos(mouse_pos() - (self.preview_cluster.size - vector(1, 1))  // 2 * TILE_SIZE)
+            pos = self.get_tile_pos(mouse_pos() - (self.preview_cluster.tiles_size - vector(1, 1))  // 2 * TILE_SIZE)
             self.preview_cluster.tiles_origin = pos
             self.preview_cluster.pos = vector(mouse_pos())
             color = 'green' if self.is_cluster_valid(self.preview_cluster) else 'red'
             self.preview_cluster.draw_preview(self.origin, color)
         
+        elif self.preview_cluster:
+            if self.is_cluster_valid(self.preview_cluster):
+                self.preview_cluster.draw(dt)   
+
+                if self.preview_cluster.auto_kill:
+                    for tile in self.preview_cluster.tiles:
+                        canvas_pos = (tile.x + self.preview_cluster.tiles_origin.x, tile.y + self.preview_cluster.tiles_origin.y)
+                        self.canvas[canvas_pos] = CanvasTile(tile + self.preview_cluster.tiles_origin)
+                
+                    self.preview_cluster = None
+
             
     
     def draw_origin(self):
@@ -222,7 +234,7 @@ class Editor:
         self.draw_grid()
         self.draw_origin()
         self.draw_tiles()
-        self.draw_menu_preview()
+        self.draw_menu_preview(dt)
         self.menu.update(dt)
 
 
@@ -231,40 +243,78 @@ class TileCluster:
         self.name = name
         self.cost = cost
         self.income = income
-        self.size = vector(size)
+        self.tiles_size = vector(size)
         self.tiles_origin = pos
+        self.size = vector(size) * TILE_SIZE
         self.pos = pos
         self.tiles = self.create_tiles()
         self.display_surface = pygame.display.get_surface()
+
+        # preview
+        self.surface = pygame.Surface((self.tiles_size.x * TILE_SIZE, self.tiles_size.y * TILE_SIZE))
+        self.preview_surface = self.surface.copy()
+        self.rect = self.surface.get_rect(center = mouse_pos())
+
+        # Animation
+        self.animation_speed = 200
+        self.animation_active = False
+        self.down_animation = [40]
+        self.up_animation = [55, 50]
+        self.animation = [self.size.x - 11, self.size.x + 11, self.size.x]
+        self.animation_index = 0
+        self.auto_kill = False
+
     
     def create_tiles(self):
         tiles = []
-        for x in range(int(self.size.x)):
-            for y in range(int(self.size.y)):
+        for x in range(int(self.tiles_size.x)):
+            for y in range(int(self.tiles_size.y)):
                 tiles.append(vector(x, y))
         return tiles
     
     def draw_preview_warnings(self, origin, color):
-        surface = pygame.Surface((self.size.x * TILE_SIZE, self.size.y * TILE_SIZE))
-        surface.fill(color)
-        surface.set_alpha(150)
+        self.surface.fill(color)
+        self.surface.set_alpha(150)
         warnings_origin = self.tiles_origin * TILE_SIZE + origin
-        rect = surface.get_rect(topleft=warnings_origin)
-        self.display_surface.blit(surface, rect)
+        self.rect = self.surface.get_rect(topleft=warnings_origin)
+        self.display_surface.blit(self.surface, self.rect)
 
     
     def draw_preview(self, origin, color):
         self.draw_preview_warnings(origin, color)
 
-        surface = pygame.Surface((self.size.x * TILE_SIZE, self.size.y * TILE_SIZE))
-        surface.fill('red')
-        rect = surface.get_rect(center = mouse_pos())
-        self.display_surface.blit(surface, rect)
-
-
-
-
+        rect = self.preview_surface.get_rect(center = mouse_pos())
+        self.preview_surface.fill('red')
         
+        self.display_surface.blit(self.preview_surface, rect)
+    
+    def animate(self, dt):
+        if self.animation_index >= len(self.animation):
+            self.animation_index = 0
+            self.animation_active = False
+            self.auto_kill = True
+
+
+        if self.animation_active:
+            size_goal = self.animation[self.animation_index]
+            direction = 1 if self.size.x - size_goal < 0 else -1
+            self.size += vector(1, 1) * dt * self.animation_speed * direction
+            center_rect = self.rect.center
+            self.rect.size = self.size
+            self.rect.center = center_rect
+            
+            if (direction == 1 and self.size.x > size_goal) or (direction == -1 and self.size.x < size_goal):
+                self.size = vector(size_goal, self.size.y)
+                self.rect.size = self.size
+                self.animation_index += 1
+        
+    def draw(self, dt):
+        self.animate(dt)
+        pygame.draw.rect(self.display_surface, 'blue', self.rect)
+
+            
+
+
 
 
 class CanvasTile:
@@ -278,5 +328,8 @@ class CanvasTile:
     def draw(self, origin=vector()):
         self.rect = self.surface.get_rect(topleft = self.pos * TILE_SIZE + origin)
         self.display_surface.blit(self.surface, self.rect)                
+
+
+
 
 

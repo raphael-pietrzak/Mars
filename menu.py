@@ -10,6 +10,7 @@ class Menu:
         self.display_surface = pygame.display.get_surface()
         self.create_menu()
         self.is_dragging = False
+        self.ressource = Ressources('Wood', 100, (50, 50))
 
     def create_menu(self, cols=1, rows=10):
         button_size = vector(50, 50)
@@ -22,10 +23,11 @@ class Menu:
         self.surface.set_colorkey('green')
 
         self.buttons = []
-        for i in range(4):
+        titles = ['4', '6', '9', '12']
+        for i in range(len(titles)):
             topleft = (margin.x, margin.y + (button_size.y + padding.y) * i)
             center = (topleft[0] + button_size.x//2, topleft[1] + button_size.y//2)
-            button = Button(center, button_size, f'{i}', i)
+            button = Button(center, button_size, titles[i], i)
             self.buttons.append(button)
 
         self.buttons_container = pygame.Surface((self.size[0], len(self.buttons) * (button_size.y + padding.y) + margin.y * 2))
@@ -73,6 +75,7 @@ class Menu:
         self.surface.blit(self.buttons_container, self.buttons_container_rect)
         self.display_surface.blit(self.surface, self.rect)
 
+        self.ressource.draw()
 
 
 
@@ -128,3 +131,20 @@ class Button:
         self.display(surface)
 
 
+
+class Ressources:
+    def __init__(self, title, amount, pos):
+        self.display_surface = pygame.display.get_surface()
+        self.title = title
+        self.amount = amount
+        self.pos = pos
+        self.font = pygame.font.Font(None, 26)
+        self.rect = pygame.Rect(self.pos, (200, 50))
+
+
+
+    def draw(self):
+        pygame.draw.rect(self.display_surface, 'blue', self.rect, border_radius=10)
+        text = self.font.render(f'{self.title}: {self.amount}', True, 'white')
+        text_rect = text.get_rect(center=self.rect.center)
+        self.display_surface.blit(text, text_rect)
