@@ -1,7 +1,6 @@
 import sys
 from editor import Editor
 from settings import *
-from menu import Menu
 import pygame
 
 class Main:
