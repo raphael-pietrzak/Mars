@@ -1,8 +1,8 @@
 import pygame
 from pygame import sprite
 from pygame import Vector2 as vector
-from coordinates import isoToScreen, screenToIso
-from settings import *
+from src.coordinates import isoToScreen, screenToIso
+from src.settings import *
 
 class Building(sprite.Sprite):
     def __init__(self, group, screen_pos, iso_pos):

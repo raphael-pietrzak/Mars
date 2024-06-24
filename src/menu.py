@@ -1,10 +1,9 @@
 import pygame
-from settings import *
+from src.settings import *
 from pygame import Vector2 as vector
 from pygame.mouse import get_pos as mouse_pos
 from pygame.mouse import get_pressed as mouse_pressed
-from math import floor
-from coordinates import isoToScreen, screenToIso
+from src.coordinates import isoToScreen, screenToIso
 
 class Menu:
     def __init__(self, add_tile, tiles_map):
@@ -75,7 +74,8 @@ class Menu:
         if self.preview_active and not mouse_pressed()[0]:
             if self.leaves >= 100 and self.preview.is_valid_position():
                 self.leaves -= 100
-                self.add_tile(self.preview.iso_pos)
+                for tile in self.preview.cluster:
+                    self.add_tile(tile)
             self.preview_active = False
             self.preview = None
 
@@ -110,7 +110,8 @@ class Menu:
 
     def draw_preview(self, origin):
         if self.preview:
-            self.preview.draw(origin)
+            self.preview.update(origin)
+            self.preview.draw()
 
     def draw_tile_test(self):
         tile_test_image = pygame.image.load(ASSETS[5]['path'])
@@ -149,19 +150,35 @@ class Preview():
         self.preview_rect = self.preview_surface.get_rect(center=mouse_pos())
         
         self.iso_pos = (0, 0)
-        self.size = (2, 1)
-        self.pattern = 'ABC'
+        self.size = (2, 4)
 
+        self.offset_cluster = []
+        self.cluster = []
+        self.create_offset_cluster()
 
-    def draw_isometric_diamond(self, center):
-        x, y = (TILE_SIZE, TILE_SIZE//2)
+    def create_offset_cluster(self):
+        for i in range(self.size[0]):
+            for j in range(self.size[1]):
+                self.offset_cluster.append((self.iso_pos[0] + i, self.iso_pos[1] + j))
+
+    def update_cluster(self):
+        self.cluster = []
+        for tile in self.offset_cluster:
+            pos = self.iso_pos + vector(tile)
+            final_pos = (int(pos.x), int(pos.y))
+            self.cluster.append(final_pos)
+
+    def draw_isometric_diamond(self, iso_pos):
+        center = self.origin + isoToScreen(iso_pos)
+
+        x, y = center + vector(TILE_SIZE , TILE_SIZE//2 )
         points = [
             (x, y - TILE_SIZE // 2),  # Point haut
             (x + TILE_SIZE , y),   # Point droit
             (x, y + TILE_SIZE // 2),  # Point bas
             (x - TILE_SIZE, y)    # Point gauche
         ]
-        points = [(x + center[0], y + center[1]) for x, y in points]
+
         color = 'green' if self.is_valid_position() else 'red'
 
         pygame.draw.polygon(self.display_surface, color, points)
@@ -172,17 +189,20 @@ class Preview():
         return center_pos
             
     def is_valid_position(self):
-        return self.iso_pos not in self.tiles_map
+        for tile in self.cluster:
+            if tile in self.tiles_map:
+                return False
+        return True
 
-    def draw(self, origin):
-        # pos = self.get_tile_center(origin)
-        # self.draw_isometric_diamond(pos)
-        self.draw_cluster(origin)
     
-    def draw_cluster(self, origin):
-        self.iso_pos = screenToIso(mouse_pos() - origin)
-        for i in range(2):
-            for j in range(4):
-                iso_tile = self.iso_pos[0] + i, self.iso_pos[1] + j 
-                pos = origin + isoToScreen(iso_tile)
-                self.draw_isometric_diamond(pos)
+    def update(self, origin):
+        self.origin = origin
+        self.iso_pos = screenToIso(mouse_pos() - self.origin)
+        self.update_cluster()
+
+    def draw(self):
+        self.draw_cluster_test()
+    
+    def draw_cluster_test(self):
+        for tile in self.cluster:
+            self.draw_isometric_diamond(tile)

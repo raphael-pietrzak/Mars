@@ -1,5 +1,5 @@
 from math import floor
-from settings import *
+from src.settings import *
 from pygame import Vector2 as vector
 
 

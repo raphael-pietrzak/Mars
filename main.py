@@ -1,6 +1,5 @@
-import sys
-from editor import Editor
-from settings import *
+from src.editor import Editor
+from src.settings import *
 import pygame
 
 class Main:

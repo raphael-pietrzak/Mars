@@ -1,13 +1,13 @@
 import sys
-from coordinates import isoToScreen
+from src.coordinates import isoToScreen
 import pygame
 from pygame import Vector2 as vector
 from pygame.mouse import get_pressed as mouse_buttons
 from pygame.mouse import get_pos as mouse_pos
 
-from menu import Menu
-from buildings import Building
-from settings import *
+from src.menu import Menu
+from src.buildings import Building
+from src.settings import *
 
 
 class Editor:
@@ -89,7 +89,7 @@ class Editor:
             (x - TILE_SIZE, y)    # Point gauche
         ]
         points = [(x + center[0], y + center[1]) for x, y in points]
-
+        color = 'white'
         pygame.draw.polygon(self.display_surface, color, points, 4)
 
     def draw_grid(self):
