@@ -1,4 +1,5 @@
 import pygame
+from src.buildings import Building
 from src.settings import *
 from pygame import Vector2 as vector
 from pygame.mouse import get_pos as mouse_pos
@@ -6,11 +7,11 @@ from pygame.mouse import get_pressed as mouse_pressed
 from src.coordinates import isoToScreen, screenToIso
 
 class Menu:
-    def __init__(self, add_tile, tiles_map):
+    def __init__(self, tiles_map, buildings_sprites):
         self.display_surface = pygame.display.get_surface()
         self.rect_group = []
-        self.add_tile = add_tile
         self.tiles_map = tiles_map
+        self.buildings_sprites = buildings_sprites
 
         # import 
         self.import_assets()
@@ -22,12 +23,13 @@ class Menu:
         # preview
         self.preview = None
         self.preview_active = False
+        self.active_index = None
 
         # rect
         self.rect = pygame.Rect(0, 0, 100, 100)
         self.rect.topleft = (0, 0)
 
-        self.leaves = 3000
+        self.leaves = 400
 
     
     def import_assets(self):
@@ -54,28 +56,41 @@ class Menu:
         self.rect_group.append(self.objectives_button_rect)
 
     def create_menu(self):
-        for i in range(4):
-            mid_left = self.buildings_bar_rect.midleft + vector(i * 150, 0)
+        i = 0
+        for key in BUILDINGS:
+            mid_left = self.buildings_bar_rect.midleft + vector(i * 130 + 10, 0)
             building_rect = self.building_image.get_rect(midleft=mid_left)
-            button = Button(self.building_image, building_rect, i)
+            button = Button(self.building_image, building_rect, key)
             self.buttons.append(button)
+            i += 1
+    
+    def new_build(self):
+        for tile in self.preview.cluster:
+            self.tiles_map.append(tile)  
+        Building(self.buildings_sprites, self.preview.cluster, self.preview.index)     
 
 
     # events
     def click_event(self):
+        if self.preview_active and mouse_pressed()[0]:
+            return
+        
         # drag
         for button in self.buttons:
             if button.rect.collidepoint(mouse_pos()) and mouse_pressed()[0]:
-                self.preview = Preview(button.index, self.tiles_map)
+                self.active_index = button.index
                 self.preview_active = True
+                self.preview = Preview(button.index, self.tiles_map)
                 break
         
         # drop
         if self.preview_active and not mouse_pressed()[0]:
-            if self.leaves >= 100 and self.preview.is_valid_position():
-                self.leaves -= 100
-                for tile in self.preview.cluster:
-                    self.add_tile(tile)
+            cost = self.preview.cost
+            if self.leaves >= cost and self.preview.is_valid_position():
+                self.leaves -= cost
+                self.new_build()
+            
+            self.active_index = None
             self.preview_active = False
             self.preview = None
 
@@ -106,7 +121,7 @@ class Menu:
     def draw_buildings_bar(self):
         self.display_surface.blit(self.buildings_bar_image, self.buildings_bar_rect)
         for button in self.buttons:
-            button.draw()
+            button.draw(self.leaves)
 
     def draw_preview(self, origin):
         if self.preview:
@@ -132,17 +147,29 @@ class Button:
         self.index = index
         self.image = image
         self.rect = rect
+        self.cost = BUILDINGS[self.index]['cost']
         
+    def draw_cost(self):
+        font_path = 'assets/fonts/more-sugar.regular.ttf'
+        font = pygame.font.Font(font_path, 20)
+        text = font.render(f"{self.cost}", True, 'white')
+        offset = vector(33, 38)
+        text_rect = text.get_rect(center=self.rect.center + offset)
+        self.display_surface.blit(text, text_rect)
 
-    def draw(self):
+    def draw(self, leaves):
         self.display_surface.blit(self.image, self.rect)
-        pygame.draw.rect(self.display_surface, 'red', self.rect, 4)
+        self.draw_cost()
+        color = 'green' if leaves >= self.cost else 'red'
+        pygame.draw.rect(self.display_surface, color, self.rect, 4)
 
 
 class Preview():
     def __init__(self, index, tiles_map):
         self.tiles_map = tiles_map
         self.display_surface = pygame.display.get_surface()
+        self.index = index
+        self.import_building_info()
 
         colors = ['red', 'blue', 'green', 'yellow']
         self.preview_surface = pygame.Surface((TILE_SIZE*2, TILE_SIZE))
@@ -150,11 +177,14 @@ class Preview():
         self.preview_rect = self.preview_surface.get_rect(center=mouse_pos())
         
         self.iso_pos = (0, 0)
-        self.size = (2, 4)
 
         self.offset_cluster = []
         self.cluster = []
         self.create_offset_cluster()
+    
+    def import_building_info(self):
+        self.size = BUILDINGS[self.index]['size']
+        self.cost = BUILDINGS[self.index]['cost']
 
     def create_offset_cluster(self):
         for i in range(self.size[0]):

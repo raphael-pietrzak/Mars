@@ -8,11 +8,10 @@ ASSETS = {
     0 : { 'path' : 'assets/counter.png'},
     1 : { 'path' : 'assets/settings.png'},
     2 : { 'path' : 'assets/objectives.png'},
-    3 : { 'path' : 'assets/building.png'},
+    3 : { 'path' : 'assets/button.png'},
     4 : { 'path' : 'assets/buildings_bar.png'},   
     5 : { 'path' : 'assets/TILE_TEST.png'},
     6 : { 'path' : 'assets/build1.png'},
-
 }
 
 

@@ -8,6 +8,7 @@ from pygame.mouse import get_pos as mouse_pos
 from src.menu import Menu
 from src.buildings import Building
 from src.settings import *
+from src.stock import Stock
 
 
 class Editor:
@@ -17,7 +18,7 @@ class Editor:
         self.buildings_sprites = pygame.sprite.Group()
 
         # menu
-        self.menu = Menu(self.add_tile, self.tiles_map)
+        self.menu = Menu(self.tiles_map, self.buildings_sprites)
         self.selection_index = None
 
 		# navigation
@@ -30,7 +31,6 @@ class Editor:
         self.support_line_surf.set_colorkey('green')
         self.support_line_surf.set_alpha(30)
 
-        
 
 
     # events
@@ -73,11 +73,9 @@ class Editor:
         if self.pan_active:
             self.origin = vector(mouse_pos()) - self.pan_offset
  
-    def add_tile(self, iso_pos):
-        print("Adding tile at", iso_pos)
-        self.tiles_map.append(iso_pos)
-        center = isoToScreen(iso_pos) 
-        Building(self.buildings_sprites, center, iso_pos)
+    def update_stock(self):
+        for building in self.buildings_sprites:
+            self.menu.leaves += building.get_leaves()
 
     # draw
     def draw_isometric_diamond(self, center):
@@ -134,12 +132,13 @@ class Editor:
     def update(self, dt):
         # update
         self.event_loop()
+        self.update_stock()
 
 
         # drawing
         self.draw_grid()
         # self.draw_tiles()
-        self.buildings_sprites.update(self.origin)
+        self.buildings_sprites.update(self.origin, dt)
         self.menu.draw(self.origin)
 
 
