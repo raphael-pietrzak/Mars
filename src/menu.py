@@ -1,10 +1,13 @@
 import pygame
 from src.buildings import Building
 from src.settings import *
+import src.settings as settings
 from pygame import Vector2 as vector
+from pygame.sprite import Sprite
 from pygame.mouse import get_pos as mouse_pos
 from pygame.mouse import get_pressed as mouse_pressed
 from src.coordinates import isoToScreen, screenToIso
+
 
 class Menu:
     def __init__(self, tiles_map, buildings_sprites):
@@ -179,7 +182,7 @@ class Button:
         color = 'green' if leaves >= self.cost else 'red'
         pygame.draw.rect(self.display_surface, color, self.rect, 4)
 
-class Preview():
+class Preview:
     def __init__(self, index, tiles_map):
         self.tiles_map = tiles_map
         self.display_surface = pygame.display.get_surface()
@@ -187,7 +190,7 @@ class Preview():
         self.import_building_info()
 
         colors = ['red', 'blue', 'green', 'yellow']
-        self.preview_surface = pygame.Surface((TILE_SIZE*2, TILE_SIZE))
+        self.preview_surface = pygame.Surface((settings.TILE_SIZE*2, settings.TILE_SIZE))
         self.preview_surface.fill(colors[index])
         self.preview_rect = self.preview_surface.get_rect(center=mouse_pos())
         
@@ -216,12 +219,12 @@ class Preview():
     def draw_isometric_diamond(self, iso_pos):
         center = self.origin + isoToScreen(iso_pos)
 
-        x, y = center + vector(TILE_SIZE , TILE_SIZE//2 )
+        x, y = center + vector(settings.TILE_SIZE , settings.TILE_SIZE//2 )
         points = [
-            (x, y - TILE_SIZE // 2),  # Point haut
-            (x + TILE_SIZE , y),   # Point droit
-            (x, y + TILE_SIZE // 2),  # Point bas
-            (x - TILE_SIZE, y)    # Point gauche
+            (x, y - settings.TILE_SIZE // 2),  # Point haut
+            (x + settings.TILE_SIZE , y),   # Point droit
+            (x, y + settings.TILE_SIZE // 2),  # Point bas
+            (x - settings.TILE_SIZE, y)    # Point gauche
         ]
 
         color = 'green' if self.is_valid_position() else 'red'
@@ -320,7 +323,7 @@ class Settings:
             self.display_surface.blit(self.close_button, self.close_button_rect)
 
 
-class SettingsButton(pygame.sprite.Sprite):
+class SettingsButton(Sprite):
     def __init__(self, on_image, off_image, rect, group, active):
         super().__init__(group)
         self.on_image = on_image

@@ -1,12 +1,13 @@
 import pygame
-from pygame import sprite
-from pygame import Vector2 as vector
-from src.coordinates import isoToScreen, screenToIso
+from pygame.sprite import Sprite
+from src.coordinates import isoToScreen
 from src.settings import *
+import src.settings as settings
 
-class Building(sprite.Sprite):
+class Building(Sprite):
     def __init__(self, group, cluster, index):
         super().__init__(group)
+        self.origin = (0, 0)
         self.display_surface = pygame.display.get_surface()
         self.index = index
 
@@ -28,13 +29,12 @@ class Building(sprite.Sprite):
 
     def draw_isometric_diamond(self, iso_pos):
         center = self.origin + isoToScreen(iso_pos)
-
-        x, y = (TILE_SIZE, TILE_SIZE//2)
+        x, y = (settings.TILE_SIZE, settings.TILE_SIZE//2)
         points = [
-            (x, y - TILE_SIZE // 2),    # Point haut
-            (x + TILE_SIZE , y),        # Point droit
-            (x, y + TILE_SIZE // 2),    # Point bas
-            (x - TILE_SIZE, y)          # Point gauche
+            (x, y - settings.TILE_SIZE // 2),    # Point haut
+            (x + settings.TILE_SIZE , y),        # Point droit
+            (x, y + settings.TILE_SIZE // 2),    # Point bas
+            (x - settings.TILE_SIZE, y)          # Point gauche
         ]
         points = [(x + center[0], y + center[1]) for x, y in points]
         color = 'white'
