@@ -42,7 +42,8 @@ class Editor:
                 pygame.quit()
                 sys.exit()
             self.pan_input(event)
-            self.menu.click_event()
+            self.resize_window(event)
+            self.menu.click_event(event)
 
     def border_pan(self):
         if self.menu.preview_active:
@@ -77,29 +78,32 @@ class Editor:
         for building in self.buildings_sprites:
             self.menu.leaves += building.get_leaves()
 
-    # draw
-    def draw_isometric_diamond(self, center):
-        x, y = (TILE_SIZE, TILE_SIZE//2)
-        points = [
-            (x, y - TILE_SIZE // 2),  # Point haut
-            (x + TILE_SIZE , y),   # Point droit
-            (x, y + TILE_SIZE // 2),  # Point bas
-            (x - TILE_SIZE, y)    # Point gauche
-        ]
-        points = [(x + center[0], y + center[1]) for x, y in points]
-        color = 'white'
-        pygame.draw.polygon(self.display_surface, color, points, 4)
+    def resize_window(self, event):
+        if event.type == pygame.VIDEORESIZE:
+            global WINDOW_WIDTH, WINDOW_HEIGHT
+            WINDOW_WIDTH = event.w
+            WINDOW_HEIGHT = event.h
+            self.support_line_surf = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+            self.support_line_surf.set_colorkey('green')
+            self.support_line_surf.set_alpha(30)
 
+            self.menu.update_rects()
+
+    def zoom(self, event):
+        pass
+
+    # draw
     def draw_grid(self):
         self.display_surface.fill('orange')
         self.draw_origin()
         self.support_line_surf.fill('green')  # Clear the support line surface with transparency
 
-        tile_width = TILE_SIZE * 4
+        tile_width = TILE_SIZE * 2
         tile_height = TILE_SIZE   # Height of an isometric tile is half its width
 
         rows = WINDOW_HEIGHT // tile_height
         cols = WINDOW_WIDTH // tile_width
+
 
         offset_x = self.origin.x % tile_width
         offset_y = self.origin.y % tile_height
@@ -110,14 +114,12 @@ class Editor:
                 y = row * tile_height + offset_y
 
                 # Draw lines for isometric grid
-                pygame.draw.line(self.support_line_surf, 'black', (x, y), (x - tile_width // 2, y + tile_height))
-                pygame.draw.line(self.support_line_surf, 'black', (x, y), (x + tile_width // 2, y + tile_height))
-                pygame.draw.line(self.support_line_surf, 'black', (x - tile_width // 2, y + tile_height), (x, y + 2 * tile_height))
-                pygame.draw.line(self.support_line_surf, 'black', (x + tile_width // 2, y + tile_height), (x, y + 2 * tile_height))
+                pygame.draw.line(self.support_line_surf, 'black', (x, y), (x - tile_width , y + tile_height))
+                pygame.draw.line(self.support_line_surf, 'black', (x, y), (x + tile_width, y + tile_height))
 
-                # Draw vertical lines
-                for i in range(1, 5):
-                    pygame.draw.line(self.support_line_surf, 'red', (x - TILE_SIZE * i, y), (x - TILE_SIZE * i, WINDOW_HEIGHT))
+                # # Draw vertical lines
+                # for i in range(1, 5):
+                #     pygame.draw.line(self.support_line_surf, 'white', (x - TILE_SIZE * i, y), (x - TILE_SIZE * i, WINDOW_HEIGHT))
 
         self.display_surface.blit(self.support_line_surf, (0, 0))
  
