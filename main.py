@@ -1,6 +1,6 @@
-from src.editor import Editor
-from src.settings import *
 import pygame
+from level import Level
+from src.settings import *
 
 class Main:
     def __init__(self):
@@ -9,7 +9,7 @@ class Main:
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.RESIZABLE)
         pygame.display.set_caption("MARS ISOMETRIC GAME")
 
-        self.editor = Editor()
+        self.level = Level()
         self.clock = pygame.time.Clock()
         
 

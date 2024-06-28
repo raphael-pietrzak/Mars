@@ -8,7 +8,8 @@
         "**/Thumbs.db": true,
         ".vscode": true,
         "**/__pycache__": true,
-        ".gitignore": true
     },
-    "hide-files.files": []
+    "hide-files.files": [
+
+    ]
 }

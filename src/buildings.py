@@ -1,14 +1,16 @@
 import pygame
 from pygame.sprite import Sprite
+from pygame import Vector2 as vector
+
 from src.coordinates import isoToScreen
-from src.settings import *
 import src.settings as settings
+from src.settings import *
 
 class Building(Sprite):
     def __init__(self, group, cluster, index):
         super().__init__(group)
-        self.origin = (0, 0)
         self.display_surface = pygame.display.get_surface()
+        self.origin = vector()
         self.index = index
 
         self.import_data()

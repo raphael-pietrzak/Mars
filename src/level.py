@@ -1,38 +1,36 @@
-import sys
-from src.coordinates import isoToScreen
-import pygame
+import pygame, sys
 from pygame import Vector2 as vector
 from pygame.mouse import get_pressed as mouse_buttons
 from pygame.mouse import get_pos as mouse_pos
 from pygame.key import get_pressed as keys
 
-from src.menu import Menu
-from src.buildings import Building
-from src.settings import *
 import src.settings as settings
-from src.stock import Stock
+from src.menu import Menu
+from src.settings import *
+from src.coordinates import rotate_90_clockwise
 
 
-class Editor:
+class Level:
     def __init__(self):
+        # display
         self.display_surface = pygame.display.get_surface()
+
+        # map
         self.tiles_map = []
         self.buildings_sprites = pygame.sprite.Group()
 
         # menu
         self.menu = Menu(self.tiles_map, self.buildings_sprites)
-        self.selection_index = None
 
 		# navigation
         self.origin = vector()
         self.pan_active = False
         self.pan_offset = vector()
 
-        # support lines 
+        # grid
         self.support_line_surf = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.support_line_surf.set_colorkey('green')
         self.support_line_surf.set_alpha(30)
-
 
 
     # events
@@ -47,6 +45,7 @@ class Editor:
             self.resize_window(event)
             self.menu.click_event()
             self.zoom(event)
+            self.key_input(event)
 
     def border_pan(self):
         if self.menu.preview_active:
@@ -81,6 +80,20 @@ class Editor:
         for building in self.buildings_sprites:
             self.menu.leaves += building.get_leaves()
 
+    def key_input(self, event):
+        if event.type == pygame.KEYDOWN:
+            if keys()[pygame.K_RIGHT]:
+                self.rotate()
+
+    def rotate(self):
+        for building in self.buildings_sprites:
+            building.cluster = [rotate_90_clockwise(pos) for pos in building.cluster]
+            building.barycenter = building.get_barycenter()
+        
+        self.tiles_map = [rotate_90_clockwise(pos) for pos in self.tiles_map]
+        self.menu.tiles_map = self.tiles_map
+
+    # resize
     def resize_window(self, event):
         if event.type == pygame.VIDEORESIZE:
             global WINDOW_WIDTH, WINDOW_HEIGHT
@@ -99,7 +112,6 @@ class Editor:
                 self.zoom_in()
             else:
                 self.zoom_out()
-
         
     def zoom_in(self):
         settings.TILE_SIZE += 10
@@ -108,6 +120,7 @@ class Editor:
     def zoom_out(self):
         settings.TILE_SIZE -= 10
         settings.TILE_SIZE = max(10, settings.TILE_SIZE)
+
 
     # draw
     def draw_grid(self):
@@ -148,6 +161,8 @@ class Editor:
     def draw_origin(self):
         pygame.draw.circle(self.display_surface, 'red', (int(self.origin.x), int(self.origin.y)), 10)
 
+
+    # update
     def update(self, dt):
         # update
         self.event_loop()

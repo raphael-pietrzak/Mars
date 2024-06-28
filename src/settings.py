@@ -1,5 +1,6 @@
 WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 800
+
 TILE_SIZE = 64
 
 
@@ -18,19 +19,4 @@ BUILDINGS = {
     1 : {'name' : 'Farm', 'income' : 20, 'cost' : 200, 'size' : (2, 3)},
     2 : {'name' : 'Factory', 'income' : 30, 'cost' : 300, 'size' : (3, 3)},
     3 : {'name' : 'Bank', 'income' : 40, 'cost' : 400, 'size' : (3, 4)}
-}
-
-
-
-
-CLUSTER_POS = {
-    'A' : (0, 0),
-    'B' : (0, 1),
-    'C' : (1, 0),
-    'D' : (1, 1),
-    'E' : (2, 0),
-    'F' : (2, 1),
-    'G' : (0, 2),
-    'H' : (1, 2),
-    'I' : (2, 2),
 }

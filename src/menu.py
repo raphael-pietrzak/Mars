@@ -1,12 +1,13 @@
 import pygame
-from src.buildings import Building
-from src.settings import *
-import src.settings as settings
 from pygame import Vector2 as vector
 from pygame.sprite import Sprite
 from pygame.mouse import get_pos as mouse_pos
 from pygame.mouse import get_pressed as mouse_pressed
+
 from src.coordinates import isoToScreen, screenToIso
+from src.buildings import Building
+import src.settings as settings
+from src.settings import *
 
 
 class Menu:
@@ -39,7 +40,6 @@ class Menu:
         self.settings = Settings()
         
 
-    
     def import_assets(self):
         self.leaf_counter_image = pygame.image.load(ASSETS[0]['path'])
         self.leaf_counter_rect = self.leaf_counter_image.get_rect(topleft=(0, 0))
@@ -114,7 +114,6 @@ class Menu:
             self.settings.active = True
 
         self.settings.event_loop()
-        
 
     def collidepoint(self, pos):
         for rect in self.rect_group:
@@ -149,7 +148,6 @@ class Menu:
         if self.preview:
             self.preview.update(origin)
             self.preview.draw()
-
 
     def draw(self, origin):
         self.draw_preview(origin)
