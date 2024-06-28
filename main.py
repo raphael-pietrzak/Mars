@@ -1,5 +1,5 @@
 import pygame
-from level import Level
+from src.level import Level
 from src.settings import *
 
 class Main:
@@ -16,7 +16,7 @@ class Main:
     def run(self):
         while True:
             dt = self.clock.tick() / 1000
-            self.editor.update(dt)
+            self.level.update(dt)
             pygame.display.update()
 
                 
