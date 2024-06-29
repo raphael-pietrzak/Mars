@@ -3,6 +3,11 @@ WINDOW_HEIGHT = 800
 
 TILE_SIZE = 64
 
+MAP_SIZE = 10
+
+ZOOM_MAX = 100
+ZOOM_MIN = 10
+
 
 ASSETS = {
     0 : { 'path' : 'assets/counter.png'},

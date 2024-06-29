@@ -4,7 +4,7 @@ from pygame.sprite import Sprite
 from pygame.mouse import get_pos as mouse_pos
 from pygame.mouse import get_pressed as mouse_pressed
 
-from src.coordinates import isoToScreen, screenToIso
+from src.coordinates import isoToScreen, screenToIso, infiniteToAbs
 from src.buildings import Building
 import src.settings as settings
 from src.settings import *
@@ -73,9 +73,12 @@ class Menu:
             i += 1
     
     def new_build(self):
+        cluster = []
         for tile in self.preview.cluster:
+            tile = infiniteToAbs(tile)
             self.tiles_map.append(tile)  
-        Building(self.buildings_sprites, self.preview.cluster, self.preview.index)     
+            cluster.append(tile)
+        Building(self.buildings_sprites, cluster, self.preview.index)     
 
     def update_rects(self):
         self.buildings_bar_rect.midbottom = self.display_surface.get_rect().midbottom

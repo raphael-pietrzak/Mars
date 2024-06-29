@@ -8,6 +8,7 @@ import src.settings as settings
 from src.menu import Menu
 from src.settings import *
 from src.coordinates import rotate_90_clockwise
+from src.camera import Camera
 
 
 class Level:
@@ -17,13 +18,13 @@ class Level:
 
         # map
         self.tiles_map = []
-        self.buildings_sprites = pygame.sprite.Group()
+        self.buildings_sprites = Camera()
 
         # menu
         self.menu = Menu(self.tiles_map, self.buildings_sprites)
 
 		# navigation
-        self.origin = vector()
+        self.origin = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
         self.pan_active = False
         self.pan_offset = vector()
 
@@ -93,6 +94,7 @@ class Level:
         self.tiles_map = [rotate_90_clockwise(pos) for pos in self.tiles_map]
         self.menu.tiles_map = self.tiles_map
 
+
     # resize
     def resize_window(self, event):
         if event.type == pygame.VIDEORESIZE:
@@ -115,11 +117,11 @@ class Level:
         
     def zoom_in(self):
         settings.TILE_SIZE += 10
-        settings.TILE_SIZE = min(100, settings.TILE_SIZE)
+        settings.TILE_SIZE = min(settings.ZOOM_MAX, settings.TILE_SIZE)
     
     def zoom_out(self):
         settings.TILE_SIZE -= 10
-        settings.TILE_SIZE = max(10, settings.TILE_SIZE)
+        settings.TILE_SIZE = max(settings.ZOOM_MIN, settings.TILE_SIZE)
 
 
     # draw
@@ -140,7 +142,7 @@ class Level:
 
         for col in range(-2, cols + 2):
             for row in range(-2, rows + 2):
-                x = col * tile_width + offset_x
+                x = col * tile_width + offset_x 
                 y = row * tile_height + offset_y
 
                 # Draw lines for isometric grid
@@ -153,27 +155,29 @@ class Level:
 
         self.display_surface.blit(self.support_line_surf, (0, 0))
  
-    def draw_tiles(self):
-        for tile in self.tiles_map:
-            pos = self.origin + vector(self.isoToScreen(tile[0], tile[1])) - vector(0, settings.TILE_SIZE//2)
-            self.draw_isometric_diamond(pos)
-
     def draw_origin(self):
-        pygame.draw.circle(self.display_surface, 'red', (int(self.origin.x), int(self.origin.y)), 10)
+        pygame.draw.circle(self.display_surface, 'red', self.origin, 10)
 
+    def draw_buildings(self):
+        self.buildings_sprites.draw_4_times()
+
+    def draw_menu(self):
+        self.menu.draw(self.origin)
 
     # update
+    def update_sprites(self, dt):
+        self.buildings_sprites.update(self.origin, dt)
+
     def update(self, dt):
         # update
         self.event_loop()
         self.update_stock()
-
+        self.update_sprites(dt)
 
         # drawing
         self.draw_grid()
-        # self.draw_tiles()
-        self.buildings_sprites.update(self.origin, dt)
-        self.menu.draw(self.origin)
+        self.draw_buildings()
+        self.draw_menu()
 
 
 

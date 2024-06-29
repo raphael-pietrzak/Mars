@@ -54,16 +54,16 @@ class Building(Sprite):
         pos = self.origin + isoToScreen(self.barycenter)
         self.display_surface.blit(text, pos)
 
-    def draw(self):
+    def draw(self, offset):
+        self.origin = offset
         for pos in self.cluster:
             self.draw_isometric_diamond(pos)
         # self.draw_leaves_production()
     
     
-    def update(self, origin, dt):
+    def update(self, dt, origin):
         self.origin = origin
         self.update_leaves(dt)
-        self.draw()
 
         
         
