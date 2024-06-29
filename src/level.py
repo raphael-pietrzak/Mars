@@ -7,7 +7,7 @@ from pygame.key import get_pressed as keys
 import src.settings as settings
 from src.menu import Menu
 from src.settings import *
-from src.coordinates import rotate_90_clockwise
+from src.coordinates import rotate_90_clockwise, isoToScreen, screenToIso
 from src.camera import Camera
 
 
@@ -15,6 +15,9 @@ class Level:
     def __init__(self):
         # display
         self.display_surface = pygame.display.get_surface()
+
+        # screen test
+        self.screen_test_rect = pygame.Rect(0, 0, 20*settings.TILE_SIZE, 10*settings.TILE_SIZE)
 
         # map
         self.tiles_map = []
@@ -37,6 +40,7 @@ class Level:
     # events
     def event_loop(self):
         self.border_pan()
+        self.infinite_map()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -94,6 +98,16 @@ class Level:
         self.tiles_map = [rotate_90_clockwise(pos) for pos in self.tiles_map]
         self.menu.tiles_map = self.tiles_map
 
+    def infinite_map(self):
+        x, y = MAP_SIZE, MAP_SIZE
+        if self.origin.x < self.screen_test_rect.left:
+            self.origin += isoToScreen((x, y))
+        if self.origin.x > self.screen_test_rect.right:
+            self.origin -= isoToScreen((x, y))
+        if self.origin.y < self.screen_test_rect.top:
+            self.origin += isoToScreen((x, -y))
+        if self.origin.y > self.screen_test_rect.bottom:
+            self.origin -= isoToScreen((x, -y))
 
     # resize
     def resize_window(self, event):
@@ -164,6 +178,21 @@ class Level:
     def draw_menu(self):
         self.menu.draw(self.origin)
 
+    def draw_screen_test(self):
+        self.screen_test_rect = pygame.Rect(0, 0, 20*settings.TILE_SIZE, 10*settings.TILE_SIZE)
+        self.screen_test_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
+        pygame.draw.rect(self.display_surface, 'red', self.screen_test_rect, 2)
+
+    def draw_diamond_test(self):
+        left = self.origin - vector(settings.TILE_SIZE, 0)
+        points = [
+            left + isoToScreen((0, MAP_SIZE)),    # Point haut
+            left,                    # Point droit
+            left + isoToScreen((MAP_SIZE, 0)),    # Point bas
+            left + isoToScreen((MAP_SIZE, MAP_SIZE))    # Point gauche
+        ]
+        pygame.draw.polygon(self.display_surface, 'red', points, 2)
+            
     # update
     def update_sprites(self, dt):
         self.buildings_sprites.update(self.origin, dt)
@@ -177,6 +206,8 @@ class Level:
         # drawing
         self.draw_grid()
         self.draw_buildings()
+        self.draw_diamond_test()
+        self.draw_screen_test()
         self.draw_menu()
 
 
