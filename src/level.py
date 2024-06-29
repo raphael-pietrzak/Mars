@@ -142,7 +142,7 @@ class Level:
 
         for col in range(-2, cols + 2):
             for row in range(-2, rows + 2):
-                x = col * tile_width + offset_x 
+                x = col * tile_width + offset_x + settings.TILE_SIZE
                 y = row * tile_height + offset_y
 
                 # Draw lines for isometric grid

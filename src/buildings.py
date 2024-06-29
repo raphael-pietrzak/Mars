@@ -31,14 +31,15 @@ class Building(Sprite):
 
     def draw_isometric_diamond(self, iso_pos):
         center = self.origin + isoToScreen(iso_pos)
-        x, y = (settings.TILE_SIZE, settings.TILE_SIZE//2)
+
+        x, y = center 
         points = [
             (x, y - settings.TILE_SIZE // 2),    # Point haut
             (x + settings.TILE_SIZE , y),        # Point droit
             (x, y + settings.TILE_SIZE // 2),    # Point bas
             (x - settings.TILE_SIZE, y)          # Point gauche
         ]
-        points = [(x + center[0], y + center[1]) for x, y in points]
+        
         color = 'white'
 
         pygame.draw.polygon(self.display_surface, color, points, 4)

@@ -14,7 +14,7 @@ class Camera(pygame.sprite.Group):
     def draw_4_times(self):
         for offset in self.offsets:
             tiles_offset = vector(offset) * settings.MAP_SIZE
-            screen_offset = isoToScreen(tiles_offset) + vector(0, settings.TILE_SIZE//2)
+            screen_offset = isoToScreen(tiles_offset)
             self.draw(screen_offset)
     
     def draw(self, offset):
