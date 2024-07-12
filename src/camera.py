@@ -1,5 +1,4 @@
 import pygame
-from pygame.sprite import Group
 from pygame import Vector2 as vector
 
 import src.settings as settings
@@ -8,7 +7,7 @@ from src.coordinates import isoToScreen
 class Camera(pygame.sprite.Group):
     def __init__(self):
         super().__init__()
-        self.offsets = [(0, 0), (-1, 0), (0, -1), (-1, -1), (1, 0), (0, 1), (1, 1), (-1, 1), (1, -1)]
+        self.offsets = [(0, 0), (1, 0), (0, 1), (1, 1)]
         self.origin = vector(0, 0)
         
     def draw_4_times(self):

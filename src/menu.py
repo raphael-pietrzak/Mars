@@ -88,14 +88,13 @@ class Menu:
 
     # events
     def click_event(self):
-        self.settings_click_event()
 
         if self.preview_active and mouse_pressed()[0]:
             return
         
         # drag
         for button in self.buttons:
-            if button.rect.collidepoint(mouse_pos()) and mouse_pressed()[0]:
+            if button.clickable and button.rect.collidepoint(mouse_pos()) and mouse_pressed()[0]:
                 self.active_index = button.index
                 self.preview_active = True
                 self.preview = Preview(button.index, self.tiles_map)
@@ -112,11 +111,12 @@ class Menu:
             self.preview_active = False
             self.preview = None
 
-    def settings_click_event(self):
-        if self.settings_button_rect.collidepoint(mouse_pos()) and mouse_pressed()[0]:
-            self.settings.active = True
+    def settings_click_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.settings_button_rect.collidepoint(mouse_pos()) and mouse_pressed()[0]:
+                self.settings.active = True
 
-        self.settings.event_loop()
+        self.settings.event_loop(event)
 
     def collidepoint(self, pos):
         for rect in self.rect_group:
@@ -168,6 +168,7 @@ class Button:
         self.image = image
         self.rect = rect
         self.cost = BUILDINGS[self.index]['cost']
+        self.clickable = False
         
     def draw_cost(self):
         font_path = 'assets/fonts/more-sugar.regular.ttf'
@@ -180,7 +181,8 @@ class Button:
     def draw(self, leaves):
         self.display_surface.blit(self.image, self.rect)
         self.draw_cost()
-        color = 'green' if leaves >= self.cost else 'red'
+        self.clickable = leaves >= self.cost
+        color = 'green' if self.clickable else 'red'
         pygame.draw.rect(self.display_surface, color, self.rect, 4)
 
 class Preview:
@@ -239,7 +241,8 @@ class Preview:
             
     def is_valid_position(self):
         for tile in self.cluster:
-            if tile in self.tiles_map:
+            origin_tile = infiniteToAbs(tile)
+            if origin_tile in self.tiles_map:
                 return False
         return True
 
@@ -292,8 +295,8 @@ class Settings:
         self.close_button = pygame.image.load('assets/settings/close.png')
         self.close_button_rect = self.close_button.get_rect(center = self.rect.topright + vector(-50, 50))
 
-    def event_loop(self):
-        if self.active:
+    def event_loop(self, event):
+        if self.active and event.type == pygame.MOUSEBUTTONDOWN:
             self.close_button_event()
             self.on_off_button_event()
 

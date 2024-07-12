@@ -1,3 +1,4 @@
+
 import pygame
 from pygame.sprite import Sprite
 from pygame import Vector2 as vector
@@ -20,6 +21,9 @@ class Building(Sprite):
     
     def import_data(self):
         self.income = BUILDINGS[self.index]['income']
+
+        # self.tree_image = pygame.image.load("assets/tree.png")
+        # self.tree_image = pygame.transform.scale(self.tree_image, (2*settings.TILE_SIZE, settings.TILE_SIZE))
 
     def update_leaves(self, dt):
         self.leaves += dt * self.income / 10
@@ -59,8 +63,12 @@ class Building(Sprite):
         self.origin = offset
         for pos in self.cluster:
             self.draw_isometric_diamond(pos)
+        
+
         # self.draw_leaves_production()
     
+    def update_rect(self):
+        pass
     
     def update(self, dt, origin):
         self.origin = origin

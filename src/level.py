@@ -5,6 +5,7 @@ from pygame.mouse import get_pos as mouse_pos
 from pygame.key import get_pressed as keys
 
 import src.settings as settings
+from src.settings import TILE_SIZE
 from src.menu import Menu
 from src.settings import *
 from src.coordinates import rotate_90_clockwise, isoToScreen, screenToIso
@@ -17,7 +18,8 @@ class Level:
         self.display_surface = pygame.display.get_surface()
 
         # screen test
-        self.screen_test_rect = pygame.Rect(0, 0, 20*settings.TILE_SIZE, 10*settings.TILE_SIZE)
+        self.screen_test_rect = pygame.Rect(0, 0, 20*TILE_SIZE, 10*TILE_SIZE)
+        self.test_active = False
 
         # map
         self.tiles_map = []
@@ -25,6 +27,7 @@ class Level:
 
         # menu
         self.menu = Menu(self.tiles_map, self.buildings_sprites)
+
 
 		# navigation
         self.origin = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
@@ -43,14 +46,20 @@ class Level:
         self.infinite_map()
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            self.pan_input(event)
+            
+            if not self.menu.settings.active:
+                self.pan_input(event)
+                self.zoom(event)
+                self.activate_test(event)
+                self.key_input(event)
+                if not self.pan_active:
+                    self.menu.click_event()
+            
+            self.menu.settings_click_event(event)
             self.resize_window(event)
-            self.menu.click_event()
-            self.zoom(event)
-            self.key_input(event)
+            self.close(event)
+            
+
 
     def border_pan(self):
         if self.menu.preview_active:
@@ -89,25 +98,42 @@ class Level:
         if event.type == pygame.KEYDOWN:
             if keys()[pygame.K_RIGHT]:
                 self.rotate()
+            if keys()[pygame.K_t]:
+                self.test_active = not self.test_active 
 
     def rotate(self):
         for building in self.buildings_sprites:
-            building.cluster = [rotate_90_clockwise(pos) for pos in building.cluster]
+            cluster = []
+            for pos in building.cluster:
+                new_axis_pos = vector(pos) -  vector(MAP_SIZE//2, MAP_SIZE//2)
+                rotated_pos = rotate_90_clockwise(new_axis_pos)
+                origin_pos = rotated_pos + vector(MAP_SIZE//2, MAP_SIZE//2)
+                cluster.append(origin_pos)
+
+            building.cluster = cluster
             building.barycenter = building.get_barycenter()
         
         self.tiles_map = [rotate_90_clockwise(pos) for pos in self.tiles_map]
         self.menu.tiles_map = self.tiles_map
 
     def infinite_map(self):
-        x, y = MAP_SIZE, MAP_SIZE
-        if self.origin.x < self.screen_test_rect.left:
-            self.origin += isoToScreen((x, y))
-        if self.origin.x > self.screen_test_rect.right:
-            self.origin -= isoToScreen((x, y))
-        if self.origin.y < self.screen_test_rect.top:
-            self.origin += isoToScreen((x, -y))
-        if self.origin.y > self.screen_test_rect.bottom:
-            self.origin -= isoToScreen((x, -y))
+        screen_center = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2) 
+        offset = isoToScreen((MAP_SIZE//2, MAP_SIZE//2))
+        x, y = screenToIso(screen_center - self.origin - offset) 
+        if x < 0:
+            self.origin -= isoToScreen((MAP_SIZE, 0))
+        if x >= MAP_SIZE:
+            self.origin += isoToScreen((MAP_SIZE, 0))
+        if y < 0:
+            self.origin -= isoToScreen((0, MAP_SIZE))
+        if y >= MAP_SIZE:
+            self.origin += isoToScreen((0, MAP_SIZE))
+
+    def activate_test(self, event):
+        if event.type == pygame.KEYDOWN:
+            if keys()[pygame.K_t]:
+                self.test_active = not self.test_active
+            
 
     # resize
     def resize_window(self, event):
@@ -137,6 +163,10 @@ class Level:
         settings.TILE_SIZE -= 10
         settings.TILE_SIZE = max(settings.ZOOM_MIN, settings.TILE_SIZE)
 
+    def close(self, event):
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
 
     # draw
     def draw_grid(self):
@@ -183,16 +213,28 @@ class Level:
         self.screen_test_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
         pygame.draw.rect(self.display_surface, 'red', self.screen_test_rect, 2)
 
-    def draw_diamond_test(self):
-        left = self.origin - vector(settings.TILE_SIZE, 0)
+    def draw_diamond_test(self, iso_left, color):
+        left = self.origin - vector(settings.TILE_SIZE, 0) + isoToScreen(iso_left)
         points = [
             left + isoToScreen((0, MAP_SIZE)),    # Point haut
             left,                    # Point droit
             left + isoToScreen((MAP_SIZE, 0)),    # Point bas
             left + isoToScreen((MAP_SIZE, MAP_SIZE))    # Point gauche
         ]
-        pygame.draw.polygon(self.display_surface, 'red', points, 2)
+
+        pygame.draw.polygon(self.display_surface, color, points, 2)
             
+    def draw_screen_center(self):
+        pygame.draw.circle(self.display_surface, 'blue', (WINDOW_WIDTH//2, WINDOW_HEIGHT//2), 10)
+
+    def draw_tests(self):
+        if self.test_active:
+            self.draw_diamond_test((0, 0), 'red')
+            self.draw_diamond_test((MAP_SIZE//2, MAP_SIZE//2), 'blue')
+            self.draw_screen_center()
+            self.draw_screen_test()
+
+
     # update
     def update_sprites(self, dt):
         self.buildings_sprites.update(self.origin, dt)
@@ -206,8 +248,7 @@ class Level:
         # drawing
         self.draw_grid()
         self.draw_buildings()
-        self.draw_diamond_test()
-        self.draw_screen_test()
+        self.draw_tests()
         self.draw_menu()
 
 
