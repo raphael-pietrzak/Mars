@@ -1,8 +1,8 @@
 from pygame import Vector2 as vector
 from math import floor
 
-from src.settings import *
-import src.settings as settings
+from .settings import *
+import settings as settings
 
 
 def isoToScreen(isoPos):

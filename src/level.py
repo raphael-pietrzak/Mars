@@ -4,12 +4,12 @@ from pygame.mouse import get_pressed as mouse_buttons
 from pygame.mouse import get_pos as mouse_pos
 from pygame.key import get_pressed as keys
 
-import src.settings as settings
-from src.settings import TILE_SIZE
-from src.menu import Menu
-from src.settings import *
-from src.coordinates import rotate_90_clockwise, isoToScreen, screenToIso
-from src.camera import Camera
+import settings as settings
+from .settings import TILE_SIZE
+from .menu import Menu
+from .settings import *
+from .coordinates import rotate_90_clockwise, isoToScreen, screenToIso
+from .camera import Camera
 
 
 class Level:

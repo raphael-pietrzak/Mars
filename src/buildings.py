@@ -3,9 +3,9 @@ import pygame
 from pygame.sprite import Sprite
 from pygame import Vector2 as vector
 
-from src.coordinates import isoToScreen
-import src.settings as settings
-from src.settings import *
+from .settings import *
+from .coordinates import isoToScreen
+import settings as settings
 
 class Building(Sprite):
     def __init__(self, group, cluster, index):

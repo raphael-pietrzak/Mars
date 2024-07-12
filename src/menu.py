@@ -4,10 +4,10 @@ from pygame.sprite import Sprite
 from pygame.mouse import get_pos as mouse_pos
 from pygame.mouse import get_pressed as mouse_pressed
 
-from src.coordinates import isoToScreen, screenToIso, infiniteToAbs
-from src.buildings import Building
-import src.settings as settings
-from src.settings import *
+import settings as settings
+from .coordinates import isoToScreen, screenToIso, infiniteToAbs
+from .buildings import Building
+from .settings import *
 
 
 class Menu:
