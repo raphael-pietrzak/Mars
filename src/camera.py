@@ -1,8 +1,8 @@
 import pygame
 from pygame import Vector2 as vector
 
-import settings as settings
-from .coordinates import isoToScreen
+from .utils import isoToScreen
+import src.settings as settings
 
 class Camera(pygame.sprite.Group):
     def __init__(self):

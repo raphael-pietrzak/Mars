@@ -4,8 +4,8 @@ from pygame.sprite import Sprite
 from pygame import Vector2 as vector
 
 from .settings import *
-from .coordinates import isoToScreen
-import settings as settings
+from .utils import isoToScreen
+import src.settings as settings
 
 class Building(Sprite):
     def __init__(self, group, cluster, index):

@@ -11,7 +11,7 @@ class Main:
 
         self.level = Level()
         self.clock = pygame.time.Clock()
-        
+
 
     def run(self):
         while True:
