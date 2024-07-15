@@ -1,7 +1,7 @@
 
 import pygame
 from pygame.math import Vector2 as vector
-
+from pygame.mouse import get_pos as mouse_pos
 
 class Component:
     def __init__(self, image, center):
@@ -112,6 +112,11 @@ class Button:
         self.rect = rect
         self.action = action
         self.offset = vector()
+    
+    def event_handler(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(mouse_pos() - self.offset):
+                self.action()
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)

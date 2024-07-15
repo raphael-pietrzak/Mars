@@ -62,7 +62,6 @@ class Level:
                 self.menus_events(event)
                 self.zoom(event)
                 self.pan_input(event)
-                self.activate_test(event)
                 self.key_input(event)
                 
             self.resize_window(event)
@@ -116,6 +115,10 @@ class Level:
                 self.test_active = not self.test_active 
 
     def rotate(self):
+        center = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2) - self.origin
+        center_after = rotate_90_clockwise(screenToIso(center))
+        self.origin = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2) - vector(isoToScreen(center_after))
+
         for building in self.buildings_sprites:
             cluster = []
             for pos in building.cluster:
@@ -130,6 +133,8 @@ class Level:
         self.tiles_map = [rotate_90_clockwise(pos) for pos in self.tiles_map]
         self.buildings_bar_menu.tiles_map = self.tiles_map
 
+
+
     def infinite_map(self):
         screen_center = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2) 
         offset = isoToScreen((MAP_SIZE//2, MAP_SIZE//2))
@@ -143,11 +148,6 @@ class Level:
         if y >= MAP_SIZE:
             self.origin += isoToScreen((0, MAP_SIZE))
 
-    def activate_test(self, event):
-        if event.type == pygame.KEYDOWN:
-            if keys()[pygame.K_t]:
-                self.test_active = not self.test_active
-            
 
     # resize
     def resize_window(self, event):
