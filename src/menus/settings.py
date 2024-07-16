@@ -9,7 +9,7 @@ from src.settings import ASSETS
 
 
 class Settings:
-    def __init__(self):
+    def __init__(self, change_screen):
         # display
         self.display_surface = pygame.display.get_surface()
         self.active = False
@@ -25,7 +25,8 @@ class Settings:
         self.settings_button_image = pygame.image.load(ASSETS[1]['path'])
         self.settings_button_rect = self.settings_button_image.get_rect(topleft=(400, 0))
 
-        # self.activation_button 
+        self.change_screen = change_screen
+
         
     # setup
     def import_assets(self):
@@ -60,10 +61,14 @@ class Settings:
         self.blur_surface.set_alpha(80)
     
     # events
-    def event_loop(self, event):
-        if self.active and event.type == pygame.MOUSEBUTTONDOWN:
-            self.close_button_event()
-            self.on_off_button_event()
+    def event_loop(self):
+        for event in pygame.event.get():
+            if self.active and event.type == pygame.MOUSEBUTTONDOWN:
+                self.close_button_event()
+                self.on_off_button_event()
+            
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                self.change_screen('main_menu')
 
     def close_button_event(self):
         if self.close_button_rect.collidepoint(mouse_pos()) and mouse_pressed()[0]:
@@ -87,6 +92,10 @@ class Settings:
             self.draw_on_off()
             self.display_surface.blit(self.surface, self.rect)
             self.display_surface.blit(self.close_button, self.close_button_rect)
+
+    # update
+    def update(self, dt):
+        self.event_loop()
 
 
 class Toggle(Sprite):

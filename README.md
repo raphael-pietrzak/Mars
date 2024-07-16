@@ -25,3 +25,9 @@ python main.py
 Here is a preview of the program:
 
 ![alt text](<assets/Screenshot 2024-06-28 at 16.34.23.png>)
+
+
+## Commands
+
+- `Right Arrow` - Rotate the map to the right
+- `T` - Show test debug

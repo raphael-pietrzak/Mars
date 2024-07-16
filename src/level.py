@@ -7,13 +7,11 @@ from pygame.key import get_pressed as keys
 import src.settings as settings
 from .settings import TILE_SIZE
 from .menus.shop import BuildingsBar
-from .menus.settings import Settings
 from .menus.stock import StockMenu
 
 from .settings import *
 from .utils import rotate_90_clockwise, isoToScreen, screenToIso
 from .camera import Camera
-from .gui.button import Button
 from .stock import Stock
 
 
@@ -32,8 +30,6 @@ class Level:
         self.stock = Stock()
 
         # menu
-        self.settings_menu = Settings()
-        self.settings_button = Button(ASSETS[1]['path'], (400, 0), self.show_settings)
         self.stock_menu = StockMenu(self.stock)
         self.buildings_bar_menu = BuildingsBar(self.tiles_map, self.buildings_sprites, self.stock)
 
@@ -48,22 +44,17 @@ class Level:
         self.support_line_surf.set_colorkey('green')
         self.support_line_surf.set_alpha(30)
 
-    def show_settings(self):
-        self.settings_menu.active = True
+
 
 
     # events
     def event_loop(self):
         for event in pygame.event.get():
-
-            self.settings_button.event_handler(event)
-            self.settings_menu.event_loop(event)
-
             if self.level_active:
                 self.menus_events(event)
                 self.zoom(event)
-                self.pan_input(event)
                 self.key_input(event)
+                self.pan_input(event)
                 
             self.resize_window(event)
             self.close(event)
@@ -127,17 +118,12 @@ class Level:
         self.origin = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2) - vector(isoToScreen(center_after))
 
         for building in self.buildings_sprites:
-            cluster = []
-            for pos in building.cluster:
-                new_axis_pos = vector(pos) -  vector(MAP_SIZE//2, MAP_SIZE//2)
-                rotated_pos = rotate_90_clockwise(new_axis_pos)
-                origin_pos = rotated_pos + vector(MAP_SIZE//2, MAP_SIZE//2)
-                cluster.append(origin_pos)
-
-            building.cluster = cluster
+            building.cluster = [rotate_90_clockwise(pos) for pos in building.cluster]
+            building.cluster = [(x%MAP_SIZE, y%MAP_SIZE) for x, y in building.cluster]
             building.barycenter = building.get_barycenter()
         
         self.tiles_map = [rotate_90_clockwise(pos) for pos in self.tiles_map]
+        self.tiles_map = [(x%MAP_SIZE, y%MAP_SIZE) for x, y in self.tiles_map]
         self.buildings_bar_menu.tiles_map = self.tiles_map
 
     def infinite_map(self):
@@ -239,9 +225,7 @@ class Level:
 
     def draw_menu(self):
         self.buildings_bar_menu.draw(self.origin)
-        self.settings_button.draw(self.display_surface)
         self.stock_menu.draw()
-        self.settings_menu.draw()
 
     def draw_screen_test(self):
         self.screen_test_rect = pygame.Rect(0, 0, 20*settings.TILE_SIZE, 10*settings.TILE_SIZE)

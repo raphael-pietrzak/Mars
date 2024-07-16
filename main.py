@@ -8,15 +8,28 @@ class Main:
 
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.RESIZABLE)
         pygame.display.set_caption("MARS ISOMETRIC GAME")
-
-        self.level = Level()
         self.clock = pygame.time.Clock()
 
+        # screens
+        self.level = Level()
+        self.main_menu = None
+
+        self.screens = {
+            "main_menu": self.main_menu,
+            "game": self.level
+        }
+        self.current_screen = "game"
+
+    def change_screen(self, screen):
+        self.current_screen = screen
 
     def run(self):
         while True:
             dt = self.clock.tick() / 1000
-            self.level.update(dt)
+            
+            screen = self.screens[self.current_screen]
+            screen.update(dt)
+            
             pygame.display.update()
 
                 
