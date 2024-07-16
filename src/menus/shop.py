@@ -4,12 +4,12 @@ from pygame.mouse import get_pos as mouse_pos
 from pygame.mouse import get_pressed as mouse_pressed
 
 from src.utils import isoToScreen, screenToIso, infiniteToAbs
-from src.buildings import Building
+from src.sprites.buildings import Building
 from src.settings import BUILDINGS, ASSETS
 import src.settings as settings
 
 class BuildingsBar:
-    def __init__(self, tiles_map, buildings_sprites):
+    def __init__(self, tiles_map, buildings_sprites, stock):
         self.display_surface = pygame.display.get_surface()
         self.buildings_sprites = buildings_sprites
         self.tiles_map = tiles_map
@@ -31,18 +31,14 @@ class BuildingsBar:
         self.rect.topleft = (0, 0)
 
         # stock
-        self.leaves = 400
+        self.stock = stock
 
     def import_assets(self):
-
-
         # Buildings bar
         self.buildings_bar_image = pygame.image.load(ASSETS[4]['path'])
         self.building_image = pygame.image.load(ASSETS[3]['path'])
         mid_bottom = self.display_surface.get_rect().midbottom
         self.buildings_bar_rect = self.buildings_bar_image.get_rect(midbottom=mid_bottom)
-
-
 
     def create_menu(self):
         i = 0
@@ -59,17 +55,11 @@ class BuildingsBar:
             tile = infiniteToAbs(tile)
             self.tiles_map.append(tile)  
             cluster.append(tile)
-        Building(self.buildings_sprites, cluster, self.preview.index)     
 
-    def update_rects(self):
-        self.buildings_bar_rect.midbottom = self.display_surface.get_rect().midbottom
-        self.buttons = []
-        self.create_menu()
-        self.settings = Settings()
+        Building(self.buildings_sprites, cluster, self.preview.index)     
 
     # events
     def click_event(self):
-
         if self.preview_active and mouse_pressed()[0]:
             return
         
@@ -84,8 +74,9 @@ class BuildingsBar:
         # drop
         if self.preview_active and not mouse_pressed()[0]:
             cost = self.preview.cost
+            self.leaves = self.stock.leaves
             if self.leaves >= cost and self.preview.is_valid_position():
-                self.leaves -= cost
+                self.stock.get_leaves(cost)
                 self.new_build()
             
             self.active_index = None
@@ -95,8 +86,9 @@ class BuildingsBar:
     # draw
     def draw_buildings_bar(self):
         self.display_surface.blit(self.buildings_bar_image, self.buildings_bar_rect)
+        leaves = self.stock.leaves
         for button in self.buttons:
-            button.draw(self.leaves)
+            button.draw(leaves)
 
     def draw_preview(self, origin):
         if self.preview:
@@ -154,6 +146,7 @@ class Preview:
         self.cluster = []
         self.create_offset_cluster()
     
+    # setup
     def import_building_info(self):
         self.size = BUILDINGS[self.index]['size']
         self.cost = BUILDINGS[self.index]['cost']
@@ -163,13 +156,19 @@ class Preview:
             for j in range(self.size[1]):
                 self.offset_cluster.append((self.iso_pos[0] + i, self.iso_pos[1] + j))
 
-    def update_cluster(self):
-        self.cluster = []
-        for tile in self.offset_cluster:
-            pos = self.iso_pos + vector(tile)
-            final_pos = (int(pos.x), int(pos.y))
-            self.cluster.append(final_pos)
+    def get_tile_center(self, origin):
+        self.iso_pos = screenToIso(mouse_pos() - origin)
+        center_pos = origin + isoToScreen(self.iso_pos)
+        return center_pos
+            
+    def is_valid_position(self):
+        for tile in self.cluster:
+            origin_tile = infiniteToAbs(tile)
+            if origin_tile in self.tiles_map:
+                return False
+        return True
 
+    # draw
     def draw_isometric_diamond(self, iso_pos):
         center = self.origin + isoToScreen(iso_pos)
 
@@ -184,29 +183,23 @@ class Preview:
         color = 'green' if self.is_valid_position() else 'red'
 
         pygame.draw.polygon(self.display_surface, color, points)
-      
-    def get_tile_center(self, origin):
-        self.iso_pos = screenToIso(mouse_pos() - origin)
-        center_pos = origin + isoToScreen(self.iso_pos)
-        return center_pos
-            
-    def is_valid_position(self):
-        for tile in self.cluster:
-            origin_tile = infiniteToAbs(tile)
-            if origin_tile in self.tiles_map:
-                return False
-        return True
-
-    
-    def update(self, origin):
-        self.origin = origin
-        self.iso_pos = screenToIso(mouse_pos() - self.origin)
-        self.update_cluster()
-
-    def draw(self):
-        self.draw_cluster_test()
-    
+   
     def draw_cluster_test(self):
         for tile in self.cluster:
             self.draw_isometric_diamond(tile)
 
+    def draw(self):
+        self.draw_cluster_test()
+    
+    # update
+    def update_cluster(self):
+        self.cluster = []
+        for tile in self.offset_cluster:
+            pos = self.iso_pos + vector(tile)
+            final_pos = (int(pos.x), int(pos.y))
+            self.cluster.append(final_pos)
+
+    def update(self, origin):
+        self.origin = origin
+        self.iso_pos = screenToIso(mouse_pos() - self.origin)
+        self.update_cluster()

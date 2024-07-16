@@ -107,9 +107,9 @@ class Component:
         self.animate(dt)
 
 class Button:
-    def __init__(self, image, rect, action):
-        self.image = image
-        self.rect = rect
+    def __init__(self, path, pos, action):
+        self.image = pygame.image.load(path)
+        self.rect = self.image.get_rect(topleft=pos)
         self.action = action
         self.offset = vector()
     

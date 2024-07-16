@@ -6,14 +6,16 @@ from pygame.key import get_pressed as keys
 
 import src.settings as settings
 from .settings import TILE_SIZE
-from .overlay.buildings_bar import BuildingsBar
-from .overlay.settings import Settings
-from .overlay.stock import Stock
+from .menus.shop import BuildingsBar
+from .menus.settings import Settings
+from .menus.stock import StockMenu
 
 from .settings import *
 from .utils import rotate_90_clockwise, isoToScreen, screenToIso
 from .camera import Camera
-from .gui.button import Component
+from .gui.button import Button
+from .stock import Stock
+
 
 class Level:
     def __init__(self):
@@ -27,11 +29,13 @@ class Level:
         # map
         self.tiles_map = []
         self.buildings_sprites = Camera()
+        self.stock = Stock()
 
         # menu
-        self.buildings_bar_menu = BuildingsBar(self.tiles_map, self.buildings_sprites)
         self.settings_menu = Settings()
-        self.stock_menu = Stock()
+        self.settings_button = Button(ASSETS[1]['path'], (400, 0), self.show_settings)
+        self.stock_menu = StockMenu(self.stock)
+        self.buildings_bar_menu = BuildingsBar(self.tiles_map, self.buildings_sprites, self.stock)
 
 		# navigation
         self.origin = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
@@ -44,20 +48,17 @@ class Level:
         self.support_line_surf.set_colorkey('green')
         self.support_line_surf.set_alpha(30)
 
-        # test
-        self.settings_button_image = pygame.image.load(ASSETS[1]['path'])
-        self.button_test = Component(self.settings_button_image, (300, 300))
+    def show_settings(self):
+        self.settings_menu.active = True
 
 
     # events
     def event_loop(self):
-        self.border_pan()
-        self.infinite_map()
-
         for event in pygame.event.get():
 
-            self.button_test.event_handler(event)
-            
+            self.settings_button.event_handler(event)
+            self.settings_menu.event_loop(event)
+
             if self.level_active:
                 self.menus_events(event)
                 self.zoom(event)
@@ -66,7 +67,11 @@ class Level:
                 
             self.resize_window(event)
             self.close(event)
-    
+
+        self.border_pan()
+        self.infinite_map()
+
+
     def menus_events(self, event):
         if not self.pan_active:
             self.buildings_bar_menu.click_event()
@@ -105,7 +110,8 @@ class Level:
  
     def update_stock(self):
         for building in self.buildings_sprites:
-            self.buildings_bar_menu.leaves += building.get_leaves()
+            collect = building.get_leaves()
+            self.stock.add_leaves(collect)
 
     def key_input(self, event):
         if event.type == pygame.KEYDOWN:
@@ -114,6 +120,7 @@ class Level:
             if keys()[pygame.K_t]:
                 self.test_active = not self.test_active 
 
+    # camera
     def rotate(self):
         center = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2) - self.origin
         center_after = rotate_90_clockwise(screenToIso(center))
@@ -133,8 +140,6 @@ class Level:
         self.tiles_map = [rotate_90_clockwise(pos) for pos in self.tiles_map]
         self.buildings_bar_menu.tiles_map = self.tiles_map
 
-
-
     def infinite_map(self):
         screen_center = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2) 
         offset = isoToScreen((MAP_SIZE//2, MAP_SIZE//2))
@@ -147,19 +152,6 @@ class Level:
             self.origin -= isoToScreen((0, MAP_SIZE))
         if y >= MAP_SIZE:
             self.origin += isoToScreen((0, MAP_SIZE))
-
-
-    # resize
-    def resize_window(self, event):
-        if event.type == pygame.VIDEORESIZE:
-            global WINDOW_WIDTH, WINDOW_HEIGHT
-            WINDOW_WIDTH = event.w
-            WINDOW_HEIGHT = event.h
-            self.support_line_surf = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
-            self.support_line_surf.set_colorkey('green')
-            self.support_line_surf.set_alpha(30)
-
-            self.buildings_bar_menu.update_rects()
 
     def zoom(self, event):
         self.zoom_active = False
@@ -190,11 +182,22 @@ class Level:
         settings.TILE_SIZE -= self.zoom_speed
         settings.TILE_SIZE = max(settings.ZOOM_MIN, settings.TILE_SIZE)
 
+    # resize
+    def resize_window(self, event):
+        if event.type == pygame.VIDEORESIZE:
+            global WINDOW_WIDTH, WINDOW_HEIGHT
+            WINDOW_WIDTH = event.w
+            WINDOW_HEIGHT = event.h
+            self.support_line_surf = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+            self.support_line_surf.set_colorkey('green')
+            self.support_line_surf.set_alpha(30)
+
+            self.buildings_bar_menu.update_rects()
+
     def close(self, event):
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
 
     # draw
     def draw_grid(self):
@@ -236,8 +239,9 @@ class Level:
 
     def draw_menu(self):
         self.buildings_bar_menu.draw(self.origin)
-        self.settings_menu.draw()
+        self.settings_button.draw(self.display_surface)
         self.stock_menu.draw()
+        self.settings_menu.draw()
 
     def draw_screen_test(self):
         self.screen_test_rect = pygame.Rect(0, 0, 20*settings.TILE_SIZE, 10*settings.TILE_SIZE)
@@ -275,14 +279,12 @@ class Level:
         self.event_loop()
         self.update_stock()
         self.update_sprites(dt)
-        self.button_test.update(dt)
 
         # drawing
         self.draw_grid()
         self.draw_buildings()
         self.draw_tests()
         self.draw_menu()
-        self.button_test.draw(self.display_surface)
 
 
 

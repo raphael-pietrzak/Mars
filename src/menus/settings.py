@@ -8,10 +8,6 @@ from pygame.mouse import get_pressed as mouse_pressed
 from src.settings import ASSETS
 
 
-
-
-
-
 class Settings:
     def __init__(self):
         # display
@@ -75,14 +71,14 @@ class Settings:
 
     def on_off_button_event(self):
         offset = vector(self.rect.topleft)
-        self.on_off_button_sprites.update(offset)
+        self.toggle_options_group.update(offset)
 
     # draw
     def draw_settings_button(self):
         self.display_surface.blit(self.settings_button_image, (400, 0))
 
     def draw_on_off(self):
-        self.on_off_button_sprites.draw(self.surface)
+        self.toggle_options_group.draw(self.surface)
 
     def draw(self):
         self.draw_settings_button()

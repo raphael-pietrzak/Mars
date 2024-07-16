@@ -12,8 +12,11 @@ After installing Python, you can run the program by following these steps:
 
 ```bash
 git clone https://github.com/user7652314326/Mars.git
-cd Mars
-python3 main.py
+cd MARS
+python3 -m venv myvenv
+source myvenv/bin/activate
+pip install -r requirements.txt
+python main.py
 ```
 
 
@@ -21,4 +24,4 @@ python3 main.py
 
 Here is a preview of the program:
 
-![alt text](<assets/readme/Screenshot 2024-06-28 at 16.34.23.png>)
+![alt text](<assets/Screenshot 2024-06-28 at 16.34.23.png>)

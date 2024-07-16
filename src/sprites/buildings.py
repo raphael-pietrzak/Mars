@@ -3,8 +3,8 @@ import pygame
 from pygame.sprite import Sprite
 from pygame import Vector2 as vector
 
-from .settings import *
-from .utils import isoToScreen
+from ..settings import *
+from ..utils import isoToScreen
 import src.settings as settings
 
 class Building(Sprite):
