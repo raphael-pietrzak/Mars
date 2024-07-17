@@ -3,8 +3,8 @@ import pygame
 from pygame.sprite import Sprite
 from pygame import Vector2 as vector
 
-from ..settings import *
-from ..utils import isoToScreen
+from ..settings import MAP_SIZE, BUILDINGS, TILE_SIZE_DEFAULT
+from ..utils import isoToScreen, load_image, rotate_90_clockwise
 import src.settings as settings
 
 class Building(Sprite):
@@ -13,17 +13,42 @@ class Building(Sprite):
         self.display_surface = pygame.display.get_surface()
         self.origin = vector()
         self.index = index
+        self.paths = ['0.png', '1.png', '2.png', '3.png']
+        self.image_index = 0
 
-        self.import_data()
+        self.import_images()
         self.cluster = cluster
         self.barycenter = self.get_barycenter()
         self.leaves = 0
-    
-    def import_data(self):
-        self.income = BUILDINGS[self.index]['income']
 
-        # self.tree_image = pygame.image.load("assets/tree.png")
-        # self.tree_image = pygame.transform.scale(self.tree_image, (2*settings.TILE_SIZE, settings.TILE_SIZE))
+        self.test_active = True
+        self.income = BUILDINGS[self.index]['income']
+    
+    def import_images(self):
+        self.images = []
+        for path in self.paths:
+            self.images.append(load_image(path))
+
+        self.scale_image()
+    
+    def scale_image(self):
+        self.factor = (settings.TILE_SIZE / TILE_SIZE_DEFAULT) 
+        image_factor = 1/3 * self.factor
+        self.image = self.images[self.image_index]
+        self.image = pygame.transform.scale_by(self.image, image_factor)
+        self.rect = self.image.get_rect()
+
+    
+    def zoom(self):
+        self.scale_image()
+        
+
+    def rotate(self):
+        self.cluster = [rotate_90_clockwise(pos) for pos in self.cluster]
+        self.cluster = [(x%MAP_SIZE, y%MAP_SIZE) for x, y in self.cluster]
+        self.barycenter = self.get_barycenter()
+        self.image_index = (self.image_index + 1) % 4
+        self.scale_image()
 
     def update_leaves(self, dt):
         self.leaves += dt * self.income / 10
@@ -59,13 +84,19 @@ class Building(Sprite):
         pos = self.origin + isoToScreen(self.barycenter)
         self.display_surface.blit(text, pos)
 
-    def draw(self, offset):
-        self.origin = offset
-        for pos in self.cluster:
-            self.draw_isometric_diamond(pos)
-        
+    def draw(self, origin):
+        self.rect.center = origin + isoToScreen(self.cluster[0])
+        self.display_surface.blit(self.image, self.rect)
+        self.origin = origin
 
-        # self.draw_leaves_production()
+        if self.test_active:
+            for pos in self.cluster:
+                self.draw_isometric_diamond(pos)
+            
+            pygame.draw.rect(self.display_surface, 'red', self.rect, 2)
+        pygame.draw.circle(self.display_surface, 'red', self.rect.center, 10)                             
+
+
     
     def update_rect(self):
         pass

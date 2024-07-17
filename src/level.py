@@ -118,9 +118,8 @@ class Level:
         self.origin = vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2) - vector(isoToScreen(center_after))
 
         for building in self.buildings_sprites:
-            building.cluster = [rotate_90_clockwise(pos) for pos in building.cluster]
-            building.cluster = [(x%MAP_SIZE, y%MAP_SIZE) for x, y in building.cluster]
-            building.barycenter = building.get_barycenter()
+            building.rotate()
+            
         
         self.tiles_map = [rotate_90_clockwise(pos) for pos in self.tiles_map]
         self.tiles_map = [(x%MAP_SIZE, y%MAP_SIZE) for x, y in self.tiles_map]
@@ -159,6 +158,9 @@ class Level:
 
             offset = (1 - factor) * self.distance_to_origin
             self.origin += offset
+
+            for building in self.buildings_sprites:
+                building.zoom()
 
     def zoom_in(self):
         settings.TILE_SIZE += self.zoom_speed

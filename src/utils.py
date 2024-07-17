@@ -1,6 +1,8 @@
 from pygame import Vector2 as vector
 from math import floor
 
+import pygame
+
 import src.settings as settings
 
 
@@ -24,6 +26,10 @@ def infiniteToAbs(infinitePos):
 def rotate_90_clockwise(pos):
     x, y = pos
     return (y, -x)
+
+def load_image(relative_path):
+    absolute_path = f"assets/{relative_path}"
+    return pygame.image.load(absolute_path)
 
 
 
