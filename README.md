@@ -11,7 +11,7 @@ To run the program, you need to have Python installed on your machine. If you do
 After installing Python, you can run the program by following these steps:
 
 ```bash
-git clone https://github.com/user7652314326/Mars.git
+git clone https://github.com/raphael-pietrzak/Mars.git
 cd MARS
 python3 -m venv myvenv
 source myvenv/bin/activate
