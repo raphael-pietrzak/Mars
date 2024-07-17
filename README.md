@@ -31,3 +31,4 @@ Here is a preview of the program:
 
 - `Right Arrow` - Rotate the map to the right
 - `T` - Show test debug
+- `CMD + MOUSE WHEEL` - Zoom in/out
