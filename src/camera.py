@@ -8,6 +8,8 @@ class Camera(pygame.sprite.Group):
     def __init__(self):
         super().__init__()
         self.offsets = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        self.offsets = sorted(self.offsets, key=lambda offset: isoToScreen(vector(offset)).y)
+
         self.origin = vector(0, 0)
         
     def draw_4_times(self):
@@ -17,7 +19,9 @@ class Camera(pygame.sprite.Group):
             self.draw(screen_offset)
     
     def draw(self, offset):
-        for sprite in self.sprites():
+        sorted_sprites = sorted(self.sprites(), key=lambda sprite: sprite.rect.centery)
+
+        for sprite in sorted_sprites:
             sprite.draw(self.origin + offset)
 
     def update(self, origin, dt):

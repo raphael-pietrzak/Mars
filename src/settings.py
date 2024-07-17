@@ -22,7 +22,7 @@ ASSETS = {
 }
 
 BUILDINGS = {
-    0 : {'name' : 'House', 'income' : 10, 'cost' : 100, 'size' : (2, 2)},
+    0 : {'name' : 'House', 'income' : 10, 'cost' : 100, 'size' : (1, 1)},
     1 : {'name' : 'Farm', 'income' : 20, 'cost' : 200, 'size' : (2, 3)},
     2 : {'name' : 'Factory', 'income' : 30, 'cost' : 300, 'size' : (3, 3)},
     3 : {'name' : 'Bank', 'income' : 40, 'cost' : 400, 'size' : (3, 4)}

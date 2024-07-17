@@ -26,6 +26,9 @@ Here is a preview of the program:
 
 ![alt text](<assets/Screenshot 2024-06-28 at 16.34.23.png>)
 
+Video demo :
+
+![alt text](assets/capture.gif)
 
 ## Commands
 

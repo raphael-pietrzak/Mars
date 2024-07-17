@@ -21,7 +21,7 @@ class Building(Sprite):
         self.barycenter = self.get_barycenter()
         self.leaves = 0
 
-        self.test_active = True
+        self.test_active = False
         self.income = BUILDINGS[self.index]['income']
     
     def import_images(self):
@@ -94,7 +94,7 @@ class Building(Sprite):
                 self.draw_isometric_diamond(pos)
             
             pygame.draw.rect(self.display_surface, 'red', self.rect, 2)
-        pygame.draw.circle(self.display_surface, 'red', self.rect.center, 10)                             
+            pygame.draw.circle(self.display_surface, 'red', self.rect.center, 10)
 
 
     
